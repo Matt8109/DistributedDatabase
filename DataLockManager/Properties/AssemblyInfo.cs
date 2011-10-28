@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("TransactionManager")]
+[assembly: AssemblyTitle("DataLockManager")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("TransactionManager")]
+[assembly: AssemblyProduct("DataLockManager")]
 [assembly: AssemblyCopyright("Copyright ©  2011 Matthew Mancuso")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("967485b9-ca43-4488-b0a6-5d8200388bf0")]
+[assembly: Guid("54543ece-9e94-40d6-8aa2-1effba607e10")]
 
 // Version information for an assembly consists of the following four values:
 //

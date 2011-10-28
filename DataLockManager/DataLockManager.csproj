@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}</ProjectGuid>
+    <ProjectGuid>{021F2551-FE22-456C-99DC-03BC8DD1451D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DistributedDatabase.TransactionManager</RootNamespace>
-    <AssemblyName>DistributedDatabase.TransactionManager</AssemblyName>
+    <RootNamespace>DistributedDatabase.DataLockManager</RootNamespace>
+    <AssemblyName>DistributedDatabase.DataLockManager</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -43,11 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interfaces\INetworking.cs" />
-    <Compile Include="Interfaces\IObjectGraph.cs" />
-    <Compile Include="Interfaces\ISiteGraph.cs" />
-    <Compile Include="Interfaces\ITransactionGraph.cs" />
-    <Compile Include="Interfaces\ISystemInformation.cs" />
+    <Compile Include="ILockManager.cs" />
+    <Compile Include="INetworking.cs" />
+    <Compile Include="IObjectGraph.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -55,6 +53,10 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{7CEF185B-DEF1-4291-A1E4-40990E6F31C8}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\TransactionManager\TransactionManager.csproj">
+      <Project>{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}</Project>
+      <Name>TransactionManager</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
