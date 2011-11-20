@@ -16,6 +16,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{7CEF185B-DEF1-4291-A1E4-40990E6F31C8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "References", "References", "{B7A33C29-C930-4188-8455-7BB1AD3E5792}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RhinoMocks", "RhinoMocks", "{F0F4AB59-B230-45D9-8C65-240D8365A174}"
+	ProjectSection(SolutionItems) = preProject
+		References\RhinoMocks\acknowledgements.txt = References\RhinoMocks\acknowledgements.txt
+		References\RhinoMocks\license.txt = References\RhinoMocks\license.txt
+		References\RhinoMocks\Rhino.Mocks.dll = References\RhinoMocks\Rhino.Mocks.dll
+		References\RhinoMocks\Rhino.Mocks.xml = References\RhinoMocks\Rhino.Mocks.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = DistributedDatabase.vsmdi
@@ -72,5 +82,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F0F4AB59-B230-45D9-8C65-240D8365A174} = {B7A33C29-C930-4188-8455-7BB1AD3E5792}
 	EndGlobalSection
 EndGlobal

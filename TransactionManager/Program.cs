@@ -6,7 +6,7 @@ using System.IO.Pipes;
 
 namespace DistributedDatabase.TransactionManager
 {
-    class Program
+    public static class Program
     {
         static void Main(string[] args)
         {

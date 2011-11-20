@@ -43,6 +43,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InputUtilities\InputParser.cs" />
+    <Compile Include="InputUtilities\FileReader.cs" />
     <Compile Include="Interfaces\INetworking.cs" />
     <Compile Include="Interfaces\IObjectGraph.cs" />
     <Compile Include="Interfaces\ISiteGraph.cs" />

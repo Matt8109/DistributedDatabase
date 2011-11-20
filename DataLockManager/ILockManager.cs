@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using DistributedDatabase.Core.Entities.Transactions;
+using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.TransactionManager.Entities;
 
 namespace DataLockManager
@@ -36,7 +38,7 @@ namespace DataLockManager
 		bool GetLock(string Id, Transaction seeker, bool isReadLock = false);
 		
 		/// <summary>
-		/// Realeases a lock.
+		/// Releases a lock.
 		/// </summary>
 		/// <returns>
 		/// The lock.

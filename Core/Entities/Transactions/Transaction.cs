@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace DistributedDatabase.TransactionManager.Entities
+namespace DistributedDatabase.Core.Entities.Transactions
 {
 	/// <summary>
 	/// The status of a transaction.
@@ -60,7 +60,7 @@ namespace DistributedDatabase.TransactionManager.Entities
 		public List<String> TransactionHistory {get;set;}
 		
 		/// <summary>
-		/// Initializes a new instance of the <see cref="TransactionManager.Transaction"/> class.
+		/// Initializes a new instance of the <see cref="Transaction"/> class.
 		/// </summary>
 		public Transaction (int transactionId)
 		{

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.TransactionManager.Entities;
 
 namespace DistributedDatabase.TransactionManager.Interfaces

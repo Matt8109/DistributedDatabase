@@ -40,11 +40,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entities\Actions\BaseAction.cs" />
+    <Compile Include="Entities\Actions\BeginTransaction.cs" />
+    <Compile Include="Entities\Actions\EndTransaction.cs" />
     <Compile Include="Entities\Datum.cs" />
     <Compile Include="Entities\DLManagerInstance.cs" />
+    <Compile Include="Entities\Execution\ExecutionEntity.cs" />
+    <Compile Include="Entities\Execution\ExecutionPlan.cs" />
     <Compile Include="Entities\Site.cs" />
-    <Compile Include="Entities\Transaction.cs" />
+    <Compile Include="Entities\SystemClock.cs" />
+    <Compile Include="Entities\Transactions\Transaction.cs" />
+    <Compile Include="Entities\Transactions\TransactionList.cs" />
     <Compile Include="Entities\Variable.cs" />
+    <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
