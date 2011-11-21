@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using DistributedDatabase.TransactionManager.InputUtilities;
+using DistributedDatabase.Core.Utilities.InputUtilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DistributedDatabase.Test.InputUtilities

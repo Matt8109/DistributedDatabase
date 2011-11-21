@@ -4,7 +4,7 @@ using System.Linq;
 using DistributedDatabase.Core.Entities.Actions;
 using DistributedDatabase.Core.Entities.Execution;
 
-namespace DistributedDatabase.TransactionManager.InputUtilities
+namespace DistributedDatabase.Core.Utilities.InputUtilities
 {
     public static class InputParser
     {

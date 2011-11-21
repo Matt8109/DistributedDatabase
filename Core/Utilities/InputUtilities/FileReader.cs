@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace DistributedDatabase.TransactionManager.InputUtilities
+namespace DistributedDatabase.Core.Utilities.InputUtilities
 {
     /// <summary>
     /// Loads a file from the disk.
