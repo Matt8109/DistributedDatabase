@@ -23,7 +23,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <summary>
         /// Initializes a new instance of the <see cref="Transaction"/> class.
         /// </summary>
-        public Transaction(int transactionId)
+        public Transaction(String transactionId)
         {
             TransactionId = transactionId;
             Status = TransactionStatus.Created;
@@ -36,7 +36,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <value>
         /// The transaction identifier.
         /// </value>
-        public int TransactionId { get; set; }
+        public string TransactionId { get; set; }
 
         /// <summary>
         /// Gets or sets the status of the transaction.

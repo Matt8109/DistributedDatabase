@@ -34,9 +34,10 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// </summary>
         /// <param name="id">The id.</param>
         /// <returns></returns>
-        public Transaction GetTransaction(int id)
+        public Transaction GetTransaction(String id)
         {
-            return Transactions.Where(x => x.TransactionId == id).First();
+            id = id.ToLower();
+            return Transactions.Where(x => x.TransactionId.ToLower().Equals(id)).First();
         }
 
         /// <summary>

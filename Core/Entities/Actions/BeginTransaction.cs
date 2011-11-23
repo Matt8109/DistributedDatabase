@@ -16,8 +16,7 @@ namespace DistributedDatabase.Core.Entities.Actions
             if (info.Length != 3)
                 throw new Exception("Invalid command format: " + commandText);
 
-            var transaction = new Transaction(int.Parse(info[1]));
-
+            var transaction = new Transaction(info[1]) {IsReadOnly = info[0].ToLower().Equals("beginro")};
         }
 
         public Transaction Transaction { get; set; }
