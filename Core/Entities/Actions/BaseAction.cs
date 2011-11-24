@@ -1,4 +1,5 @@
 ﻿using System;
+using DistributedDatabase.Core.Entities.Transactions;
 
 namespace DistributedDatabase.Core.Entities.Actions
 {
@@ -11,7 +12,8 @@ namespace DistributedDatabase.Core.Entities.Actions
         /// The full and original text of the command.
         /// </summary>
         /// <param name="commandText">The command text.</param>
-       public BaseAction(string commandText)
+        /// <param name="transactionList">The transaction list.</param>
+       public BaseAction(string commandText,  TransactionList transactionList)
        {
            CommandText = commandText;
        }

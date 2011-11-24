@@ -8,8 +8,8 @@ namespace DistributedDatabase.Core.Entities.Actions
     /// </summary>
     public class BeginTransaction : BaseAction
     {
-        public BeginTransaction(string commandText)
-            : base(commandText)
+        public BeginTransaction(string commandText, TransactionList transactionList)
+            : base(commandText, transactionList)
         {
             string[] info = commandText.Split(new[] { '(', ')' });
 
@@ -23,7 +23,7 @@ namespace DistributedDatabase.Core.Entities.Actions
 
         public override string ActionName
         {
-            get { return "Begin Transaction" + Transaction.TransactionId; }
+            get { return "Begin Transaction" + Transaction.Id; }
         }
     }
 }

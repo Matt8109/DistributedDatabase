@@ -47,6 +47,16 @@ namespace DistributedDatabase.Core.Utilities.InputUtilities
             return temp.ToList();
         }
 
+        public static string[] TrimStringList(string[] list)
+        {
+            for (int i=0; i< list.Count(); i++)
+            {
+                list[i] = list[i].Trim();
+            }
+
+            return list;
+        }
+
         public static BaseAction StringToAction(String lineElement, ref List<String>  errorList)
         {
 

@@ -25,7 +25,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// </summary>
         public Transaction(String transactionId)
         {
-            TransactionId = transactionId;
+            Id = transactionId;
             Status = TransactionStatus.Created;
             LocksHeld = new List<String>();
         }
@@ -36,7 +36,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <value>
         /// The transaction identifier.
         /// </value>
-        public string TransactionId { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the status of the transaction.
