@@ -1,0 +1,14 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Core/Entities/Actions/BeginTransaction.cs">
+    <Files>
+      <File FileName="DataLockManager/INetworking.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Transactions/TransactionList.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Actions/BeginTransaction.cs" Line="17" Column="9" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

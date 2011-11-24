@@ -23,7 +23,7 @@ namespace DistributedDatabase.Core.Entities.Actions
 
         public override string ActionName
         {
-            get { return "Begin Transaction"; }
+            get { return "Begin Transaction" + Transaction.TransactionId; }
         }
     }
 }
