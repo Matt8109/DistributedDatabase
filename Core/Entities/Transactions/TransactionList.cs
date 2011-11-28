@@ -24,7 +24,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         public void AddTransaction(Transaction tempTransaction)
         {
             if (Transactions.Where(x => x.Id == tempTransaction.Id).Count() != 0)
-                throw new Exception("Error: Detected Duplicate Transaction Id");
+                throw new Exception("Error: Detected Duplicate Transaction Id:" + tempTransaction.Id);
 
             Transactions.Add(tempTransaction);
         }
@@ -36,6 +36,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <returns></returns>
         public Transaction GetTransaction(String id)
         {
+			//TODO: FIX THIS
             id = id.ToLower();
             return Transactions.Where(x => x.Id.ToLower().Equals(id)).First();
         }
