@@ -52,7 +52,6 @@
     <Compile Include="Entities\SystemClock.cs" />
     <Compile Include="Entities\Transactions\Transaction.cs" />
     <Compile Include="Entities\Transactions\TransactionList.cs" />
-    <Compile Include="Entities\Variable.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\InputUtilities\FileReader.cs" />
@@ -61,9 +60,12 @@
     <Compile Include="Entities\Actions\Recover.cs" />
     <Compile Include="Entities\Sites\Site.cs" />
     <Compile Include="Entities\Sites\SiteList.cs" />
+    <Compile Include="Entities\Variables\Variable.cs" />
+    <Compile Include="Entities\Variables\VariableList.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\Sites\" />
+    <Folder Include="Entities\Variables\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,13 +1,20 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Core/Entities/Actions/EndTransaction.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Core/Entities/Variables/Variable.cs">
     <Files>
+      <File FileName="../../../Dropbox/NYU/Fall 2011/Advanced Database Systems/DistributedDatabase/TransactionManager/Entities/Variable.cs" Line="1" Column="1" />
       <File FileName="DataLockManager/INetworking.cs" Line="1" Column="1" />
-      <File FileName="Core/Entities/Transactions/TransactionList.cs" Line="28" Column="4" />
-      <File FileName="Core/Entities/Actions/BeginTransaction.cs" Line="17" Column="79" />
-      <File FileName="Core/Entities/Actions/EndTransaction.cs" Line="21" Column="4" />
-      <File FileName="Core/Entities/Actions/Write.cs" Line="10" Column="4" />
+      <File FileName="Core/Entities/Transactions/TransactionList.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Actions/BeginTransaction.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Actions/EndTransaction.cs" Line="1" Column="1" />
       <File FileName="Core/Entities/Transactions/Transaction.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Actions/Recover.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Actions/Read.cs" Line="57" Column="1" />
+      <File FileName="Core/Entities/Sites/Site.cs" Line="10" Column="19" />
+      <File FileName="Core/Entities/Sites/SiteList.cs" Line="42" Column="15" />
+      <File FileName="Core/Entities/Variables.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Variables/VariableList.cs" Line="1" Column="1" />
+      <File FileName="Core/Entities/Variables/Variable.cs" Line="20" Column="49" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
