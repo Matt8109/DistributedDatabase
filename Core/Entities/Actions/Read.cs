@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Utilities.InputUtilities;
 
@@ -17,8 +18,8 @@ namespace DistributedDatabase.Core.Entities.Actions
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="transactionList">The transaction list.</param>
-        public Read(string commandText, TransactionList transactionList)
-            : base(commandText, transactionList)
+        public Read(string commandText, TransactionList transactionList, SiteList siteList)
+            : base(commandText, transactionList, siteList)
         {
             string[] info = commandText.Split(new[] { '(', ')' });
 

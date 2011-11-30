@@ -19,6 +19,7 @@ Thumbs.db
 *.log
 *.cache
 *.merge_file*
+*.DS_Store
 [Bb]in
 [Dd]ebug*/
 *.lib

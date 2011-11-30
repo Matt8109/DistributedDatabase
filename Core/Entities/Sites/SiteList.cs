@@ -44,9 +44,9 @@ namespace DistributedDatabase.Core.Entities.Sites
 		/// <returns>
 		/// The failed sites.
 		/// </returns>
-		public List<Stite> GetFailedSites ()
+		public List<Site> GetFailedSites ()
 		{
-			return Sites.Where (x => x.IsFailed);
+			return (List<Site>) Sites.Where (x => x.IsFailed);
 		}
 	}
 }
