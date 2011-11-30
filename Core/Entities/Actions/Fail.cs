@@ -14,21 +14,27 @@ namespace DistributedDatabase.Core.Entities.Actions
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="transactionList">The transaction list.</param>
-        public Fail(string commandText, TransactionList transactionList, SiteList siteList)
-            : base(commandText, transactionList, siteList)
+        /// <param name="siteList"></param>
+        /// <param name="systemClock"></param>
+        public Fail(string commandText, TransactionList transactionList, SiteList siteList, SystemClock systemClock)
+            : base(commandText, transactionList, siteList, systemClock)
         {
-
-            string[] info = commandText.Split(new[] { '(', ')' });
+            string[] info = commandText.Split(new[] {'(', ')'});
 
             if (info.Length != 3)
                 throw new Exception("Invalid command format: " + commandText);
-            //TODO: fix me
-            //var site = new Transaction();
+
+            Site site = siteList.GetSite(info[1]);
+
+            if (site == null)
+                throw new Exception("Site not found:" + info[1]);
         }
+
+        public Site Site { get; set; }
 
         public override string ActionName
         {
-            get { throw new NotImplementedException(); }
+            get { return "Failure at Site: " + Site.Id; }
         }
     }
 }

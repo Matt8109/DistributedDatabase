@@ -1,6 +1,6 @@
 using System;
+using DistributedDatabase.Core.Entities.Variables;
 using DistributedDatabase.TransactionManager.Entities;
-using DistributedDatabase.TransactionManager.Entities.Variables;
 
 namespace DataLockManager
 {

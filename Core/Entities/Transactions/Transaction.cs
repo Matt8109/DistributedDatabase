@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DistributedDatabase.Core.Entities.Actions;
 
 namespace DistributedDatabase.Core.Entities.Transactions
 {
@@ -23,11 +24,14 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <summary>
         /// Initializes a new instance of the <see cref="Transaction"/> class.
         /// </summary>
-        public Transaction(String transactionId)
+        /// <param name="transactionId">The transaction id.</param>
+        /// <param name="systemClock">The system clock.</param>
+        public Transaction(string transactionId, SystemClock systemClock)
         {
             Id = transactionId;
             Status = TransactionStatus.Created;
             LocksHeld = new List<String>();
+            SystemClock = systemClock;
         }
 
         /// <summary>
@@ -45,6 +49,22 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// The status.
         /// </value>
         public TransactionStatus Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets the start clock time of the transaction.
+        /// </summary>
+        /// <value>
+        /// The start time.
+        /// </value>
+        public int StartTime { get; set; }
+
+        /// <summary>
+        /// Gets or sets the end clock time of the transaction.
+        /// </summary>
+        /// <value>
+        /// The end time.
+        /// </value>
+        public int EndTime { get; set; }
 
         /// <summary>
         /// A list that contains the locks currently held by the transaction
@@ -72,6 +92,14 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <value>
         /// The transaction history.
         /// </value>
-        public List<String> TransactionHistory { get; set; }
+        public List<BaseAction> TransactionHistory { get; set; }
+        
+        /// <summary>
+        /// Simply holds a reference to the system clock
+        /// </summary>
+        /// <value>
+        /// The system clock.
+        /// </value>
+        private SystemClock SystemClock { get; set; }
     }
 }

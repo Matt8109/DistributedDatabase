@@ -1,4 +1,5 @@
 using System;
+using DistributedDatabase.Core.Entities;
 using DistributedDatabase.Core.Entities.Actions;
 using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.Transactions;
@@ -11,8 +12,8 @@ namespace DistributedDatabase.Core
     /// </summary>
     public class Write : BaseAction
     {
-        public Write(string commandText, TransactionList transactionList, SiteList siteList)
-            : base(commandText, transactionList, siteList)
+        public Write(string commandText, TransactionList transactionList, SiteList siteList, SystemClock systemClock)
+            : base(commandText, transactionList, siteList, systemClock)
         {
             string[] info = commandText.Split(new[] { '(', ')' });
 

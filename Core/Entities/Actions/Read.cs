@@ -18,8 +18,8 @@ namespace DistributedDatabase.Core.Entities.Actions
         /// </summary>
         /// <param name="commandText">The command text.</param>
         /// <param name="transactionList">The transaction list.</param>
-        public Read(string commandText, TransactionList transactionList, SiteList siteList)
-            : base(commandText, transactionList, siteList)
+        public Read(string commandText, TransactionList transactionList, SiteList siteList, SystemClock systemClock)
+            : base(commandText, transactionList, siteList, systemClock)
         {
             string[] info = commandText.Split(new[] { '(', ')' });
 

@@ -9,8 +9,8 @@ namespace DistributedDatabase.Core.Entities.Actions
     /// </summary>
     public class EndTransaction : BaseAction
     {
-        public EndTransaction(string commandText, TransactionList transactionList, SiteList siteList)
-            : base(commandText, transactionList, siteList)
+        public EndTransaction(string commandText, TransactionList transactionList, SiteList siteList, SystemClock systemClock)
+            : base(commandText, transactionList, siteList, systemClock)
         {
             string[] info = commandText.Split(new[] {'(', ')'});
 
