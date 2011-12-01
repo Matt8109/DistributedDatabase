@@ -51,6 +51,7 @@
     <Compile Include="InputUtilities\InputParserTest.cs" />
     <Compile Include="Locking\ReadLockTest.cs" />
     <Compile Include="Locking\WriteLockTest.cs" />
+    <Compile Include="MultiversionReadConsistancy\MvrcTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestBase.cs" />
   </ItemGroup>

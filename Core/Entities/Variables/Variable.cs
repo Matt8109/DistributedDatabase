@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using DistributedDatabase.Core.Entities.Transactions;
 
 namespace DistributedDatabase.Core.Entities.Variables
@@ -19,14 +18,28 @@ namespace DistributedDatabase.Core.Entities.Variables
 
         protected SystemClock SystemClock { get; set; }
 
-        public bool IsReadLocked { get { return ReadLockHolders.Count != 0; } }
+        public bool IsReadLocked
+        {
+            get { return ReadLockHolders.Count != 0; }
+        }
 
-        public bool IsWriteLocked { get { return WriteLockHolder != null; } }
+        public bool IsWriteLocked
+        {
+            get { return WriteLockHolder != null; }
+        }
 
         private List<VariableValue> VariableHistory { get; set; }
 
         public List<Transaction> ReadLockHolders { get; private set; }
+
         public Transaction WriteLockHolder { get; private set; }
+
+        public string UncomittedValue { get; set; }
+
+        public void CommitValue()
+        {
+
+        }
 
         /// <summary>
         /// Gets the value.
@@ -37,10 +50,13 @@ namespace DistributedDatabase.Core.Entities.Variables
         {
             if (VariableHistory.Count != 0)
             {
-                if (tempTransaction == null)
-                    return VariableHistory.OrderByDescending((x => x.TimeStamp)).Max().Value;
-                else
-                    return VariableHistory.Where(x => x.TimeStamp <= tempTransaction.StartTime).OrderByDescending((x => x.TimeStamp)).Max().Value;
+                if (tempTransaction != null && !tempTransaction.IsReadOnly)
+                {
+                    return
+                        VariableHistory.Where(x => x.TimeStamp <= tempTransaction.StartTime).OrderByDescending(
+                            (x => x.TimeStamp)).Max().Value;
+                }
+                return VariableHistory.OrderByDescending((x => x.TimeStamp)).Max().Value;
             }
 
             return null;
@@ -58,11 +74,11 @@ namespace DistributedDatabase.Core.Entities.Variables
             //check to see if the there is currently a write lock
             if (IsWriteLocked && !WriteLockHolder.Equals(tempTransaction))
                 //they don't hold the write lock
-                return new List<Transaction>() { WriteLockHolder };
+                return new List<Transaction> { WriteLockHolder };
             else if (IsWriteLocked && WriteLockHolder.Equals(tempTransaction))
             {
                 //they do hold the write lock
-                return new List<Transaction>() { WriteLockHolder };
+                return new List<Transaction> { WriteLockHolder };
             }
 
             //there is no write lock, so add the transaction to the list of read lock holders
@@ -90,7 +106,7 @@ namespace DistributedDatabase.Core.Entities.Variables
                 if (ReadLockHolders.Count == 1 && !ReadLockHolders.Contains(tempTransaction))
                 {
                     WriteLockHolder = tempTransaction;
-                    return new List<Transaction>() { WriteLockHolder };
+                    return new List<Transaction> { WriteLockHolder };
                 }
                 else //it doesnt, sad panda
                 {
@@ -100,12 +116,12 @@ namespace DistributedDatabase.Core.Entities.Variables
 
             if (IsWriteLocked)
             {
-                return new List<Transaction>() { WriteLockHolder };
+                return new List<Transaction> { WriteLockHolder };
             }
             else
             {
                 WriteLockHolder = tempTransaction;
-                return new List<Transaction>() { WriteLockHolder };
+                return new List<Transaction> { WriteLockHolder };
             }
         }
 

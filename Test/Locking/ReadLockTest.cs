@@ -65,9 +65,9 @@ namespace DistributedDatabase.Test.Locking
         [TestMethod]
         public void TestAcquireReadLock()
         {
-            var tempVariable = new Variable("x");
-
             var systemClock = new SystemClock();
+
+            var tempVariable = new Variable("x", systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T2", systemClock);
@@ -83,9 +83,9 @@ namespace DistributedDatabase.Test.Locking
         [TestMethod]
         public void TestAcquireAndRemoveReadLock()
         {
-            var tempVariable = new Variable("x");
-
             var systemClock = new SystemClock();
+
+            var tempVariable = new Variable("x", systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T2", systemClock);
