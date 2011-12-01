@@ -10,12 +10,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DistributedDatabase.Test.Locking
 {
     /// <summary>
-    /// Summary description for ReadLockTest
+    /// Summary description for WriteLockTest
     /// </summary>
     [TestClass]
-    public class ReadLockTest : TestBase
+    public class WriteLockTest : TestBase
     {
-        public ReadLockTest()
+        public WriteLockTest()
         {
             //
             // TODO: Add constructor logic here
@@ -63,7 +63,7 @@ namespace DistributedDatabase.Test.Locking
         #endregion
 
         [TestMethod]
-        public void TestAcquireReadLock()
+        public void TestWriteLock()
         {
             var tempVariable = new Variable("x");
 
@@ -72,36 +72,18 @@ namespace DistributedDatabase.Test.Locking
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T2", systemClock);
 
-            var result = tempVariable.GetReadLock(transactionOne);
+            var result = tempVariable.GetWriteLock(transactionOne);
+
+            Assert.IsTrue(result.Contains(transactionOne));
+            Assert.IsTrue(tempVariable.WriteLockHolder == transactionOne);
+
+            var resultTwo = tempVariable.GetReadLock(transactionTwo);
+            Assert.IsFalse(result.Contains(transactionTwo));
             Assert.IsTrue(result.Contains(transactionOne));
 
-            var result2 = tempVariable.GetReadLock(transactionTwo);
-            Assert.IsTrue(result.Contains(transactionOne));
-            Assert.IsTrue(result.Contains(transactionTwo));
-        }
+            tempVariable.RemoveWriteLock(transactionOne);
 
-        [TestMethod]
-        public void TestAcquireAndRemoveReadLock()
-        {
-            var tempVariable = new Variable("x");
-
-            var systemClock = new SystemClock();
-
-            var transactionOne = new Transaction("T1", systemClock);
-            var transactionTwo = new Transaction("T2", systemClock);
-
-            var result = tempVariable.GetReadLock(transactionOne);
-            Assert.IsTrue(result.Contains(transactionOne));
-
-            var result2 = tempVariable.GetReadLock(transactionTwo);
-            Assert.IsTrue(result.Contains(transactionOne));
-            Assert.IsTrue(result.Contains(transactionTwo));
-
-            tempVariable.RemoveReadLock(transactionOne);
-            Assert.IsFalse(tempVariable.ReadLockHolders.Contains(transactionOne));
-
-            tempVariable.RemoveReadLock(transactionTwo);
-            Assert.IsFalse(tempVariable.ReadLockHolders.Contains(transactionTwo));
+            Assert.IsTrue(tempVariable.WriteLockHolder == null);
         }
     }
 }

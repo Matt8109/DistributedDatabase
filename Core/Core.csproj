@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -44,6 +44,7 @@
     <Compile Include="Entities\Actions\EndTransaction.cs" />
     <Compile Include="Entities\Actions\Fail.cs" />
     <Compile Include="Entities\Actions\Read.cs" />
+    <Compile Include="Entities\ConflictResolution\WaitDie.cs" />
     <Compile Include="Entities\Datum.cs" />
     <Compile Include="Entities\DLManagerInstance.cs" />
     <Compile Include="Entities\Execution\ExecutionEntity.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="Entities\SystemClock.cs" />
     <Compile Include="Entities\Transactions\Transaction.cs" />
     <Compile Include="Entities\Transactions\TransactionList.cs" />
+    <Compile Include="Entities\Variables\VariableValue.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\InputUtilities\FileReader.cs" />
@@ -63,10 +65,7 @@
     <Compile Include="Entities\Variables\Variable.cs" />
     <Compile Include="Entities\Variables\VariableList.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Entities\Sites\" />
-    <Folder Include="Entities\Variables\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

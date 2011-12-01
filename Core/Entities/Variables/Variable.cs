@@ -1,21 +1,50 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using DistributedDatabase.Core.Entities.Transactions;
 
 namespace DistributedDatabase.Core.Entities.Variables
 {
     public class Variable
     {
-        public Variable()
+        public Variable(string Id, SystemClock systemClock)
         {
             ReadLockHolders = new List<Transaction>();
             WriteLockHolder = null;
+            SystemClock = systemClock;
+            Id = Id;
         }
 
-        public bool IsReadLocked { get { return ReadLockHolders.Count == 0; } }
-        public bool IsWriteLocked { get { return WriteLockHolder == null; } }
+        public string Id { get; private set; }
 
-        private List<Transaction> ReadLockHolders { get; set; }
-        private Transaction WriteLockHolder { get; set; }
+        protected SystemClock SystemClock { get; set; }
+
+        public bool IsReadLocked { get { return ReadLockHolders.Count != 0; } }
+
+        public bool IsWriteLocked { get { return WriteLockHolder != null; } }
+
+        private List<VariableValue> VariableHistory { get; set; }
+
+        public List<Transaction> ReadLockHolders { get; private set; }
+        public Transaction WriteLockHolder { get; private set; }
+
+        /// <summary>
+        /// Gets the value.
+        /// </summary>
+        /// <param name="tempTransaction">The temp transaction.</param>
+        /// <returns></returns>
+        public string GetValue(Transaction tempTransaction = null)
+        {
+            if (VariableHistory.Count != 0)
+            {
+                if (tempTransaction == null)
+                    return VariableHistory.OrderByDescending((x => x.TimeStamp)).Max().Value;
+                else
+                    return VariableHistory.Where(x => x.TimeStamp <= tempTransaction.StartTime).OrderByDescending((x => x.TimeStamp)).Max().Value;
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// Attempts to get a read lock. Returns a list of transactions holding the lock,
@@ -71,14 +100,33 @@ namespace DistributedDatabase.Core.Entities.Variables
 
             if (IsWriteLocked)
             {
-                return new List<Transaction>() {WriteLockHolder};
+                return new List<Transaction>() { WriteLockHolder };
             }
             else
             {
                 WriteLockHolder = tempTransaction;
-                return new List<Transaction>() {WriteLockHolder};
+                return new List<Transaction>() { WriteLockHolder };
             }
+        }
+
+        /// <summary>
+        /// Removes the read lock if the given transaction holds it.
+        /// </summary>
+        /// <param name="tempTransaction">The temp transaction.</param>
+        public void RemoveReadLock(Transaction tempTransaction)
+        {
+            if (ReadLockHolders.Contains(tempTransaction))
+                ReadLockHolders.Remove(tempTransaction);
+        }
+
+        /// <summary>
+        /// Removes the write lock if the given transaction holds it
+        /// </summary>
+        /// <param name="tempTransaction">The temp transaction.</param>
+        public void RemoveWriteLock(Transaction tempTransaction)
+        {
+            if (WriteLockHolder == tempTransaction)
+                WriteLockHolder = null;
         }
     }
 }
-
