@@ -16,11 +16,13 @@ namespace DistributedDatabase.Core.Entities.Sites
         /// <param name='siteId'>
         /// Site identifier.
         /// </param>
-        public Site(int siteId, SiteList siteList)
+        public Site(int siteId, SiteList siteList, SystemClock systemClock)
         {
             Id = siteId;
             VariableList = new List<Variable>();
             SiteList = siteList;
+            FailTimes=new List<FailureRecoverPair>();
+            SystemClock = systemClock;
         }
 
         /// <summary>
@@ -42,7 +44,37 @@ namespace DistributedDatabase.Core.Entities.Sites
 
         public SiteList SiteList { get; set; }
 
+        public SystemClock SystemClock { get; set; }
+
         public List<Variable> VariableList { get; set; }
+
+        public List<FailureRecoverPair> FailTimes { get; set; }
+
+        /// <summary>
+        /// Determines whether the specified transaction has locks on a variable at this site.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified transaction has locks; otherwise, <c>false</c>.
+        /// </returns>
+        public bool HasLocks(Transaction transaction)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// If the site when down between when the transaction started and the current time.
+        /// Used to decide if the transaction should commit or abort.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        /// <returns></returns>
+        public bool DidGoDown(Transaction transaction)
+        {
+            var startTime = transaction.StartTime;
+            //var currentTime =
+
+            return true;
+        }
 
         /// <summary>
         /// Returns a specific variable from the list.
@@ -119,7 +151,7 @@ namespace DistributedDatabase.Core.Entities.Sites
             }
         }
 
-        public List<Transaction> FailSite()
+        protected List<Transaction> FailSite()
         {
             IsFailed = true;
             var transactionsEffected = new List<Transaction>();

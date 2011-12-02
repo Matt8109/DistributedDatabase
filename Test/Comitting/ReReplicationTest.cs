@@ -2,6 +2,10 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using DistributedDatabase.Core.Entities;
+using DistributedDatabase.Core.Entities.Sites;
+using DistributedDatabase.Core.Entities.Transactions;
+using DistributedDatabase.Core.Entities.Variables;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DistributedDatabase.Test.Comitting
@@ -62,9 +66,39 @@ namespace DistributedDatabase.Test.Comitting
         [TestMethod]
         public void TestMethod1()
         {
-            //
-            // TODO: Add test logic here
-            //
+            var systemClock = new SystemClock();
+            var siteList = new SiteList(systemClock);
+
+            var siteOne = new Site(1, siteList, systemClock);
+            var siteTwo = new Site(2, siteList, systemClock);
+
+            siteList.AddSite(siteOne);
+            siteList.AddSite(siteTwo);
+
+            var variableOne = new Variable(2, systemClock);
+            var variableTwo = new Variable(2, systemClock);
+
+            var transaction = new Transaction("test", systemClock);
+
+            siteOne.VariableList.Add(variableOne);
+            siteTwo.VariableList.Add(variableTwo);
+
+            Assert.IsTrue(variableOne.GetWriteLock(transaction).Contains(transaction));
+            Assert.IsTrue(variableTwo.GetWriteLock(transaction).Contains(transaction));
+            variableOne.Set("5");
+            variableOne.CommitValue();
+
+            variableOne.Set("4");
+
+            var affectedTranasactions = siteOne.Fail();
+            Assert.IsTrue(siteOne.IsFailed);
+
+            siteOne.Recover();
+
+            Assert.IsTrue(affectedTranasactions.Contains(transaction));
+            Assert.IsTrue(
+                transaction.AwaitingReReplication.Contains(new ValueSitePair() { Site = siteOne, Variable = variableOne }));
+            Assert.IsFalse(siteOne.IsFailed);
         }
     }
 }
