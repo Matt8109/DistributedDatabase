@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DistributedDatabase.Core.Entities.Actions;
+using DistributedDatabase.Core.Entities.Variables;
 
 namespace DistributedDatabase.Core.Entities.Transactions
 {
@@ -32,6 +33,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
             Status = TransactionStatus.Created;
             LocksHeld = new List<String>();
             QueuedCommands = new Queue<BaseAction>();
+            AwaitingReReplication = new List<ValueSitePair>();
             SystemClock = systemClock;
         }
 
@@ -81,7 +83,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <value>
         /// The queued commands.
         /// </value>
-        public Queue<BaseAction> QueuedCommands { get; set; } 
+        public Queue<BaseAction> QueuedCommands { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is read only. 
@@ -102,7 +104,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// The transaction history.
         /// </value>
         public List<BaseAction> TransactionHistory { get; set; }
-        
+
         /// <summary>
         /// Simply holds a reference to the system clock
         /// </summary>
@@ -110,5 +112,15 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// The system clock.
         /// </value>
         private SystemClock SystemClock { get; set; }
+
+        /// <summary>
+        /// Should a site recover holding a value that this transaction has a lock on
+        /// and the variable is replicated, we want to re-replicate that variable after
+        /// the transaction has completed or 
+        /// </summary>
+        /// <value>
+        /// The awaiting re replication.
+        /// </value>
+        public List<ValueSitePair> AwaitingReReplication { get; set; }
     }
 }

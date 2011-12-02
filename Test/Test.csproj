@@ -48,6 +48,7 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Comitting\ReReplicationTest.cs" />
     <Compile Include="InputUtilities\InputParserTest.cs" />
     <Compile Include="Locking\ReadLockTest.cs" />
     <Compile Include="Locking\SiteFailLockTest.cs" />

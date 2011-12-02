@@ -26,6 +26,7 @@ namespace DistributedDatabase.Core.Entities.Variables
         /// <param name="tempVariable">The temp variable.</param>
         public Variable(Variable tempVariable )
         {
+            throw new NotImplementedException();
             SystemClock = tempVariable.SystemClock;
             VariableHistory = new List<VariableValue>();
             Id = tempVariable.Id;
@@ -56,7 +57,7 @@ namespace DistributedDatabase.Core.Entities.Variables
         /// </value>
         public bool IsReadable { get; set; }
 
-        private List<VariableValue> VariableHistory { get; set; }
+        public List<VariableValue> VariableHistory { get; set; }
 
         public List<Transaction> ReadLockHolders { get; private set; }
 

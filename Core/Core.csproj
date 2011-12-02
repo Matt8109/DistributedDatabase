@@ -52,6 +52,7 @@
     <Compile Include="Entities\SystemClock.cs" />
     <Compile Include="Entities\Transactions\Transaction.cs" />
     <Compile Include="Entities\Transactions\TransactionList.cs" />
+    <Compile Include="Entities\Variables\ValueSitePair.cs" />
     <Compile Include="Entities\Variables\VariableValue.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
