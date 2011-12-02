@@ -67,7 +67,7 @@ namespace DistributedDatabase.Test.MultiversionReadConsistancy
         {
             var systemClock = new SystemClock();
 
-            var variable = new Variable("x", systemClock);
+            var variable = new Variable(1, systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T1", systemClock);
@@ -95,7 +95,7 @@ namespace DistributedDatabase.Test.MultiversionReadConsistancy
         {
             var systemClock = new SystemClock();
 
-            var variable = new Variable("x", systemClock);
+            var variable = new Variable(1, systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T1", systemClock);
@@ -123,7 +123,7 @@ namespace DistributedDatabase.Test.MultiversionReadConsistancy
         {
             var systemClock = new SystemClock();
 
-            var variable = new Variable("x", systemClock);
+            var variable = new Variable(1, systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T1", systemClock);

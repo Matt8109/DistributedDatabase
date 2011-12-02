@@ -62,7 +62,7 @@
     <Compile Include="Entities\Sites\Site.cs" />
     <Compile Include="Entities\Sites\SiteList.cs" />
     <Compile Include="Entities\Variables\Variable.cs" />
-    <Compile Include="Entities\Variables\VariableList.cs" />
+    <Compile Include="Utilities\VariableUtilities\VariableUtilities.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

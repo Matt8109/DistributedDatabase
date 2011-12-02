@@ -2,24 +2,41 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DistributedDatabase.Core.Entities.Transactions;
+using DistributedDatabase.Core.Extensions;
+using DistributedDatabase.Core.Utilities.VariableUtilities;
 
 namespace DistributedDatabase.Core.Entities.Variables
 {
     public class Variable
     {
-        public Variable(string id, SystemClock systemClock)
+        public Variable(int id, SystemClock systemClock)
         {
             ReadLockHolders = new List<Transaction>();
             WriteLockHolder = null;
             SystemClock = systemClock;
             VariableHistory = new List<VariableValue>();
             UncomittedValue = string.Empty;
+            IsReadable = true;
             Id = id;
         }
 
-        public string Id { get; private set; }
+        /// <summary>
+        /// Initializes a copy of a variable class.
+        /// </summary>
+        /// <param name="tempVariable">The temp variable.</param>
+        public Variable(Variable tempVariable )
+        {
+            SystemClock = tempVariable.SystemClock;
+            VariableHistory = new List<VariableValue>();
+            Id = tempVariable.Id;
 
-        protected SystemClock SystemClock { get; set; }
+            foreach (VariableValue tempValue in tempVariable.VariableHistory)
+                VariableHistory.Add(tempValue);
+        }
+
+        public int Id { get; private set; }
+
+        public SystemClock SystemClock { get; set; }
 
         public bool IsReadLocked
         {
@@ -31,11 +48,21 @@ namespace DistributedDatabase.Core.Entities.Variables
             get { return WriteLockHolder != null; }
         }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether this instance is readable.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is readable; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsReadable { get; set; }
+
         private List<VariableValue> VariableHistory { get; set; }
 
         public List<Transaction> ReadLockHolders { get; private set; }
 
         public Transaction WriteLockHolder { get; private set; }
+
+        public bool IsReplicated { get { return VariableUtilities.IsReplicated(Id); } }
 
         /// <summary>
         /// Gets or sets the uncommitted value.
@@ -61,8 +88,9 @@ namespace DistributedDatabase.Core.Entities.Variables
             if (UncomittedValue.Equals(string.Empty))
                 throw new Exception("Trying to commit empty value.");
 
-            VariableHistory.Add(new VariableValue {TimeStamp = SystemClock.CurrentTick, Value = UncomittedValue});
+            VariableHistory.Add(new VariableValue { TimeStamp = SystemClock.CurrentTick, Value = UncomittedValue });
             UncomittedValue = string.Empty;
+            IsReadable = true;
         }
 
         /// <summary>
@@ -98,11 +126,11 @@ namespace DistributedDatabase.Core.Entities.Variables
             //check to see if the there is currently a write lock
             if (IsWriteLocked && !WriteLockHolder.Equals(tempTransaction))
                 //they don't hold the write lock
-                return new List<Transaction> {WriteLockHolder};
+                return new List<Transaction> { WriteLockHolder };
             else if (IsWriteLocked && WriteLockHolder.Equals(tempTransaction))
             {
                 //they do hold the write lock
-                return new List<Transaction> {WriteLockHolder};
+                return new List<Transaction> { WriteLockHolder };
             }
 
             //there is no write lock, so add the transaction to the list of read lock holders
@@ -130,7 +158,7 @@ namespace DistributedDatabase.Core.Entities.Variables
                 if (ReadLockHolders.Count == 1 && ReadLockHolders.Contains(tempTransaction))
                 {
                     WriteLockHolder = tempTransaction;
-                    return new List<Transaction> {WriteLockHolder};
+                    return new List<Transaction> { WriteLockHolder };
                 }
                 else //it doesnt, sad panda
                 {
@@ -140,12 +168,12 @@ namespace DistributedDatabase.Core.Entities.Variables
 
             if (IsWriteLocked)
             {
-                return new List<Transaction> {WriteLockHolder};
+                return new List<Transaction> { WriteLockHolder };
             }
             else
             {
                 WriteLockHolder = tempTransaction;
-                return new List<Transaction> {WriteLockHolder};
+                return new List<Transaction> { WriteLockHolder };
             }
         }
 
@@ -170,13 +198,23 @@ namespace DistributedDatabase.Core.Entities.Variables
         }
 
         /// <summary>
-        /// Triggered when the site fails. 
+        /// Triggered when the site fails.
         /// </summary>
-        public void ResetToComitted()
+        /// <returns>A list of all currently holding a lock on the variable.</returns>
+        public List<Transaction> ResetToComitted()
         {
+            var transactionsWithLocks = new List<Transaction>(ReadLockHolders);
+
+            if (WriteLockHolder != null)
+                transactionsWithLocks.SilentAdd(WriteLockHolder);
+
             ReadLockHolders.Clear();
             WriteLockHolder = null;
             UncomittedValue = String.Empty;
+
+            IsReadable = !IsReplicated;
+
+            return transactionsWithLocks;
         }
     }
 }

@@ -66,7 +66,7 @@ namespace DistributedDatabase.Test.Locking
         public void TestVariableResetOnFailure()
         {
             var systemClock = new SystemClock();
-            var variable = new Variable("x", systemClock);
+            var variable = new Variable(1, systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
 
@@ -76,7 +76,7 @@ namespace DistributedDatabase.Test.Locking
             Assert.IsTrue(variable.IsReadLocked);
             Assert.IsTrue(variable.IsWriteLocked);
             Assert.IsTrue(variable.ReadLockHolders.Contains(transactionOne));
-            Assert.IsTrue(variable.WriteLockHolder==transactionOne);
+            Assert.IsTrue(variable.WriteLockHolder == transactionOne);
 
             variable.ResetToComitted();
 

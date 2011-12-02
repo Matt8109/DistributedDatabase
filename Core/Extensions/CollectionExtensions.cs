@@ -17,5 +17,20 @@ namespace DistributedDatabase.Core.Extensions
                 action(item);
             }
         }
+
+        /// <summary>
+        /// Adds a value to a list, but without throwing an error
+        /// if it already exists. 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list">The list.</param>
+        /// <param name="valueToAdd">The value to add.</param>
+        public static void SilentAdd<T>(this List<T> list, T valueToAdd)
+        {
+            if (list.Contains(valueToAdd))
+                return;
+       
+            list.Add(valueToAdd);
+        }
     }
 }

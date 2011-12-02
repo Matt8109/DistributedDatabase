@@ -67,7 +67,7 @@ namespace DistributedDatabase.Test.Locking
         {
             var systemClock = new SystemClock();
 
-            var tempVariable = new Variable("x", systemClock);
+            var tempVariable = new Variable(1, systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T2", systemClock);
@@ -85,7 +85,7 @@ namespace DistributedDatabase.Test.Locking
         {
             var systemClock = new SystemClock();
 
-            var tempVariable = new Variable("x", systemClock);
+            var tempVariable = new Variable(1, systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T2", systemClock);

@@ -14,7 +14,7 @@ namespace DistributedDatabase.Core.Entities.Actions
             if (info.Length != 3)
                 throw new Exception("Invalid command format: " + commandText);
 
-            Site site = siteList.GetSite(info[1]);
+            Site site = siteList.GetSite(int.Parse(info[1]));
 
             if (site == null)
                 throw new Exception("Site not found:" + info[1]);

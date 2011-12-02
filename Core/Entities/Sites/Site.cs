@@ -1,16 +1,32 @@
 using System;
+using System.Collections.Generic;
+using DistributedDatabase.Core.Entities.Transactions;
+using DistributedDatabase.Core.Entities.Variables;
+using DistributedDatabase.Core.Extensions;
 
 namespace DistributedDatabase.Core.Entities.Sites
 {
     public class Site
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Site"/> class.
+        /// </summary>
+        /// <param name='siteId'>
+        /// Site identifier.
+        /// </param>
+        public Site(int siteId, SiteList siteList)
+        {
+            Id = siteId;
+            VariableList = new List<Variable>();
+        }
+
+        /// <summary>
         /// Gets or sets the site identifier.
         /// </summary>
         /// <value>
         /// The site identifier.
         /// </value>
-        public string Id { get; set; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether the site is currently
@@ -21,32 +37,34 @@ namespace DistributedDatabase.Core.Entities.Sites
         /// </value>
         public bool IsFailed { get; set; }
 
-        /// <summary>
-        /// List of variables held by the site.
-        /// </summary>
-        /// <value>
-        /// The variables.
-        /// </value>
-        public VariableList Variables { get; private set; }
+        public List<Variable> VariableList { get; set; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Site"/> class.
-        /// </summary>
-        /// <param name='siteId'>
-        /// Site identifier.
-        /// </param>
-        public Site(String siteId)
+        public void RecoverSite()
         {
-            Id = siteId;
-            Variables = new VariableList();
+            IsFailed = false;
+             
+
         }
+
+        public List<Transaction> FailSite()
+        {
+            IsFailed = true;
+            var transactionsEffected = new List<Transaction>();
+
+            foreach (Variable tempVar in VariableList)
+                tempVar.ResetToComitted().ForEach(transactionsEffected.SilentAdd);
+
+            return transactionsEffected;
+        }
+
+
 
         /// <summary>
         /// Causes a failure in this site.
         /// </summary>
-        public void Fail()
+        public List<Transaction> Fail()
         {
-
+            return FailSite();
         }
     }
 }
