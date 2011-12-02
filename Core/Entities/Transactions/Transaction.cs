@@ -31,6 +31,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
             Id = transactionId;
             Status = TransactionStatus.Created;
             LocksHeld = new List<String>();
+            QueuedCommands = new Queue<BaseAction>();
             SystemClock = systemClock;
         }
 
@@ -73,6 +74,14 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// The locks held.
         /// </value>
         public List<String> LocksHeld { get; set; }
+
+        /// <summary>
+        ///  Actions that have yet to be executed because the transaction is waiting on something.
+        /// </summary>
+        /// <value>
+        /// The queued commands.
+        /// </value>
+        public Queue<BaseAction> QueuedCommands { get; set; } 
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is read only. 

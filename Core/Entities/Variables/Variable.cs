@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DistributedDatabase.Core.Entities.Transactions;
@@ -11,6 +12,8 @@ namespace DistributedDatabase.Core.Entities.Variables
             ReadLockHolders = new List<Transaction>();
             WriteLockHolder = null;
             SystemClock = systemClock;
+            VariableHistory= new List<VariableValue>();
+            UncomittedValue = string.Empty;
             Id = Id;
         }
 
@@ -34,11 +37,32 @@ namespace DistributedDatabase.Core.Entities.Variables
 
         public Transaction WriteLockHolder { get; private set; }
 
-        public string UncomittedValue { get; set; }
+        public void Set(String value)
+        {
+            if (UncomittedValue!=String.Empty)
+                throw new Exception("Attempt to set value of variable that already contains uncommitted data.");
 
+            UncomittedValue = value;
+        }
+
+        /// <summary>
+        /// Gets or sets the uncommitted value.
+        /// </summary>
+        /// <value>
+        /// The uncommitted value.
+        /// </value>
+        private string UncomittedValue { get; set; }
+
+        /// <summary>
+        /// Commits the uncommitted value.
+        /// </summary>
         public void CommitValue()
         {
+            if (UncomittedValue.Equals(string.Empty))
+                throw new Exception("Trying to commit empty value.");
 
+            VariableHistory.Add(new VariableValue() { TimeStamp = SystemClock.CurrentTick, Value = UncomittedValue });
+            UncomittedValue = string.Empty;
         }
 
         /// <summary>
@@ -50,13 +74,13 @@ namespace DistributedDatabase.Core.Entities.Variables
         {
             if (VariableHistory.Count != 0)
             {
-                if (tempTransaction != null && !tempTransaction.IsReadOnly)
+                if (tempTransaction != null && tempTransaction.IsReadOnly)
                 {
                     return
                         VariableHistory.Where(x => x.TimeStamp <= tempTransaction.StartTime).OrderByDescending(
-                            (x => x.TimeStamp)).Max().Value;
+                            (x => x.TimeStamp)).First().Value;
                 }
-                return VariableHistory.OrderByDescending((x => x.TimeStamp)).Max().Value;
+                return VariableHistory.OrderByDescending((x => x.TimeStamp)).First().Value;
             }
 
             return null;

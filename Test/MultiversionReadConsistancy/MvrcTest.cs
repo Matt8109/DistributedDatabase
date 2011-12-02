@@ -2,6 +2,9 @@
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using DistributedDatabase.Core.Entities;
+using DistributedDatabase.Core.Entities.Transactions;
+using DistributedDatabase.Core.Entities.Variables;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DistributedDatabase.Test.MultiversionReadConsistancy
@@ -60,11 +63,108 @@ namespace DistributedDatabase.Test.MultiversionReadConsistancy
         #endregion
 
         [TestMethod]
-        public void TestMethod1()
+        public void CheckMvrcBasic()
         {
-            //
-            // TODO: Add test logic here
-            //
+            var systemClock = new SystemClock();
+
+            var variable = new Variable("x", systemClock);
+
+            var transactionOne = new Transaction("T1", systemClock);
+            var transactionTwo = new Transaction("T1", systemClock);
+
+            transactionOne.IsReadOnly = true;
+            transactionOne.StartTime = 1;
+
+            variable.Set("x");
+            variable.CommitValue();
+
+            systemClock.Tick();
+            systemClock.Tick();
+            systemClock.Tick();
+
+            variable.Set("y");
+            variable.CommitValue();
+
+            Assert.IsTrue(variable.GetValue(transactionOne).Equals("x"));
+            Assert.IsTrue(variable.GetValue().Equals("y"));
+            Assert.IsTrue(variable.GetValue(transactionTwo).Equals("y"));
+        }
+
+        [TestMethod]
+        public void CheckMvrcSameStartTime()
+        {
+            var systemClock = new SystemClock();
+
+            var variable = new Variable("x", systemClock);
+
+            var transactionOne = new Transaction("T1", systemClock);
+            var transactionTwo = new Transaction("T1", systemClock);
+
+            transactionOne.IsReadOnly = true;
+            transactionOne.StartTime = 0;
+
+            variable.Set("x");
+            variable.CommitValue();
+
+            systemClock.Tick();
+            systemClock.Tick();
+            systemClock.Tick();
+
+            variable.Set("y");
+            variable.CommitValue();
+
+            Assert.IsTrue(variable.GetValue(transactionOne).Equals("x"));
+            Assert.IsTrue(variable.GetValue().Equals("y"));
+            Assert.IsTrue(variable.GetValue(transactionTwo).Equals("y"));
+        }
+
+        [TestMethod]
+        public void CheckMvrcLongerHistory()
+        {
+            var systemClock = new SystemClock();
+
+            var variable = new Variable("x", systemClock);
+
+            var transactionOne = new Transaction("T1", systemClock);
+            var transactionTwo = new Transaction("T1", systemClock);
+
+            transactionOne.IsReadOnly = true;
+
+
+            variable.Set("a");
+            variable.CommitValue();
+            systemClock.Tick();
+
+            variable.Set("b");
+            variable.CommitValue();
+            systemClock.Tick();
+
+            variable.Set("c");
+            variable.CommitValue();
+            systemClock.Tick();
+
+            variable.Set("d");
+            variable.CommitValue();
+            systemClock.Tick();
+
+            //set but don't commit
+            variable.Set("e");
+            systemClock.Tick();
+
+            transactionOne.StartTime = 0;
+            Assert.IsTrue(variable.GetValue(transactionOne).Equals("a"));
+
+            transactionOne.StartTime = 1;
+            Assert.IsTrue(variable.GetValue(transactionOne).Equals("b"));
+
+            transactionOne.StartTime = 2;
+            Assert.IsTrue(variable.GetValue(transactionOne).Equals("c"));
+
+            transactionOne.StartTime = 3;
+            Assert.IsTrue(variable.GetValue(transactionOne).Equals("d"));
+
+            Assert.IsTrue(variable.GetValue().Equals("d"));
+            Assert.IsTrue(variable.GetValue(transactionTwo).Equals("d"));
         }
     }
 }

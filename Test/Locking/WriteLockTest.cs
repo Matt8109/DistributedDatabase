@@ -65,9 +65,9 @@ namespace DistributedDatabase.Test.Locking
         [TestMethod]
         public void TestWriteLock()
         {
-            var tempVariable = new Variable("x");
-
             var systemClock = new SystemClock();
+
+            var tempVariable = new Variable("x", systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
             var transactionTwo = new Transaction("T2", systemClock);
