@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using DistributedDatabase.Core.Entities;
+using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.TransactionManager.Entities;
 
 namespace DistributedDatabase.TransactionManager.Interfaces

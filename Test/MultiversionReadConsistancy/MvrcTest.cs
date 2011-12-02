@@ -130,7 +130,6 @@ namespace DistributedDatabase.Test.MultiversionReadConsistancy
 
             transactionOne.IsReadOnly = true;
 
-
             variable.Set("a");
             variable.CommitValue();
             systemClock.Tick();

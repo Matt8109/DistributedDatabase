@@ -7,14 +7,14 @@ namespace DistributedDatabase.Core.Entities.Variables
 {
     public class Variable
     {
-        public Variable(string Id, SystemClock systemClock)
+        public Variable(string id, SystemClock systemClock)
         {
             ReadLockHolders = new List<Transaction>();
             WriteLockHolder = null;
             SystemClock = systemClock;
-            VariableHistory= new List<VariableValue>();
+            VariableHistory = new List<VariableValue>();
             UncomittedValue = string.Empty;
-            Id = Id;
+            Id = id;
         }
 
         public string Id { get; private set; }
@@ -37,14 +37,6 @@ namespace DistributedDatabase.Core.Entities.Variables
 
         public Transaction WriteLockHolder { get; private set; }
 
-        public void Set(String value)
-        {
-            if (UncomittedValue!=String.Empty)
-                throw new Exception("Attempt to set value of variable that already contains uncommitted data.");
-
-            UncomittedValue = value;
-        }
-
         /// <summary>
         /// Gets or sets the uncommitted value.
         /// </summary>
@@ -52,6 +44,14 @@ namespace DistributedDatabase.Core.Entities.Variables
         /// The uncommitted value.
         /// </value>
         private string UncomittedValue { get; set; }
+
+        public void Set(String value)
+        {
+            if (UncomittedValue != String.Empty)
+                throw new Exception("Attempt to set value of variable that already contains uncommitted data.");
+
+            UncomittedValue = value;
+        }
 
         /// <summary>
         /// Commits the uncommitted value.
@@ -61,7 +61,7 @@ namespace DistributedDatabase.Core.Entities.Variables
             if (UncomittedValue.Equals(string.Empty))
                 throw new Exception("Trying to commit empty value.");
 
-            VariableHistory.Add(new VariableValue() { TimeStamp = SystemClock.CurrentTick, Value = UncomittedValue });
+            VariableHistory.Add(new VariableValue {TimeStamp = SystemClock.CurrentTick, Value = UncomittedValue});
             UncomittedValue = string.Empty;
         }
 
@@ -98,11 +98,11 @@ namespace DistributedDatabase.Core.Entities.Variables
             //check to see if the there is currently a write lock
             if (IsWriteLocked && !WriteLockHolder.Equals(tempTransaction))
                 //they don't hold the write lock
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             else if (IsWriteLocked && WriteLockHolder.Equals(tempTransaction))
             {
                 //they do hold the write lock
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             }
 
             //there is no write lock, so add the transaction to the list of read lock holders
@@ -127,10 +127,10 @@ namespace DistributedDatabase.Core.Entities.Variables
             {
                 //maybe the same transaction holds the only read lock
                 //in which case we can give it the write lock
-                if (ReadLockHolders.Count == 1 && !ReadLockHolders.Contains(tempTransaction))
+                if (ReadLockHolders.Count == 1 && ReadLockHolders.Contains(tempTransaction))
                 {
                     WriteLockHolder = tempTransaction;
-                    return new List<Transaction> { WriteLockHolder };
+                    return new List<Transaction> {WriteLockHolder};
                 }
                 else //it doesnt, sad panda
                 {
@@ -140,12 +140,12 @@ namespace DistributedDatabase.Core.Entities.Variables
 
             if (IsWriteLocked)
             {
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             }
             else
             {
                 WriteLockHolder = tempTransaction;
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             }
         }
 
@@ -167,6 +167,16 @@ namespace DistributedDatabase.Core.Entities.Variables
         {
             if (WriteLockHolder == tempTransaction)
                 WriteLockHolder = null;
+        }
+
+        /// <summary>
+        /// Triggered when the site fails. 
+        /// </summary>
+        public void ResetToComitted()
+        {
+            ReadLockHolders.Clear();
+            WriteLockHolder = null;
+            UncomittedValue = String.Empty;
         }
     }
 }

@@ -4,12 +4,6 @@ namespace DistributedDatabase.Core.Entities.Sites
 {
     public class Site
     {
-        public Site(string id)
-        {
-            Id = id;
-            IsFailed = false;
-        }
-
         /// <summary>
         /// Gets or sets the site identifier.
         /// </summary>
@@ -26,5 +20,33 @@ namespace DistributedDatabase.Core.Entities.Sites
         /// <c>true</c> if this instance is failed; otherwise, <c>false</c>.
         /// </value>
         public bool IsFailed { get; set; }
+
+        /// <summary>
+        /// List of variables held by the site.
+        /// </summary>
+        /// <value>
+        /// The variables.
+        /// </value>
+        public VariableList Variables { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Site"/> class.
+        /// </summary>
+        /// <param name='siteId'>
+        /// Site identifier.
+        /// </param>
+        public Site(String siteId)
+        {
+            Id = siteId;
+            Variables = new VariableList();
+        }
+
+        /// <summary>
+        /// Causes a failure in this site.
+        /// </summary>
+        public void Fail()
+        {
+
+        }
     }
 }

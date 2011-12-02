@@ -49,7 +49,6 @@
     <Compile Include="Entities\DLManagerInstance.cs" />
     <Compile Include="Entities\Execution\ExecutionEntity.cs" />
     <Compile Include="Entities\Execution\ExecutionPlan.cs" />
-    <Compile Include="Entities\Site.cs" />
     <Compile Include="Entities\SystemClock.cs" />
     <Compile Include="Entities\Transactions\Transaction.cs" />
     <Compile Include="Entities\Transactions\TransactionList.cs" />

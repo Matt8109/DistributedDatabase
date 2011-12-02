@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using DistributedDatabase.Core.Entities;
+using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.TransactionManager.Entities;
 
 namespace DistributedDatabase.TransactionManager.Interfaces
@@ -27,7 +29,7 @@ namespace DistributedDatabase.TransactionManager.Interfaces
 		/// The site write list.
 		/// </returns>
 		/// <param name='varaible'>
-		/// Varaible.
+		/// Variable.
 		/// </param>
 		List<Site> GetSiteWriteList(string varaible);
 	}

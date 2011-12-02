@@ -10,12 +10,12 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DistributedDatabase.Test.Locking
 {
     /// <summary>
-    /// Summary description for WriteLockTest
+    /// Summary description for SiteFailLockTest
     /// </summary>
     [TestClass]
-    public class WriteLockTest : TestBase
+    public class SiteFailLockTest
     {
-        public WriteLockTest()
+        public SiteFailLockTest()
         {
             //
             // TODO: Add constructor logic here
@@ -63,31 +63,27 @@ namespace DistributedDatabase.Test.Locking
         #endregion
 
         [TestMethod]
-        public void TestWriteLock()
+        public void TestVariableResetOnFailure()
         {
             var systemClock = new SystemClock();
-
-            var tempVariable = new Variable("x", systemClock);
+            var variable = new Variable("x", systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
-            var transactionTwo = new Transaction("T2", systemClock);
 
-            var result = tempVariable.GetWriteLock(transactionOne);
+            variable.GetReadLock(transactionOne);
+            variable.GetWriteLock(transactionOne);
 
-            Assert.IsTrue(result.Contains(transactionOne));
-            Assert.IsTrue(tempVariable.WriteLockHolder == transactionOne);
+            Assert.IsTrue(variable.IsReadLocked);
+            Assert.IsTrue(variable.IsWriteLocked);
+            Assert.IsTrue(variable.ReadLockHolders.Contains(transactionOne));
+            Assert.IsTrue(variable.WriteLockHolder==transactionOne);
 
-            var resultTwo = tempVariable.GetReadLock(transactionTwo);
-            Assert.IsFalse(resultTwo.Contains(transactionTwo));
-            Assert.IsTrue(resultTwo.Contains(transactionOne));
+            variable.ResetToComitted();
 
-            var resultThree = tempVariable.GetWriteLock(transactionTwo);
-            Assert.IsFalse(resultThree.Contains(transactionTwo));
-            Assert.IsTrue(resultThree.Contains(transactionOne));
-
-            tempVariable.RemoveWriteLock(transactionOne);
-
-            Assert.IsTrue(tempVariable.WriteLockHolder == null);
+            Assert.IsFalse(variable.IsReadLocked);
+            Assert.IsFalse(variable.IsWriteLocked);
+            Assert.IsFalse(variable.ReadLockHolders.Contains(transactionOne));
+            Assert.IsFalse(variable.WriteLockHolder == transactionOne);
         }
     }
 }
