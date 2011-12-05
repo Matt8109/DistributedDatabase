@@ -71,7 +71,10 @@ namespace DistributedDatabase.Core.Entities.Sites
         public bool DidGoDown(Transaction transaction)
         {
             var startTime = transaction.StartTime;
-            //var currentTime =
+            var currentTime = SystemClock.CurrentTick;
+
+            var wentDown = FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= currentTime);
+
 
             return true;
         }
