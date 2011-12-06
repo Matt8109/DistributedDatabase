@@ -41,5 +41,26 @@ namespace DistributedDatabase.Core.Utilities.TransactionUtilities
                 }
             }
         }
+
+        /// <summary>
+        /// Commits the transaction.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        public static void CommitTransaction(Transaction transaction)
+        {
+            foreach (Site tempSite in transaction.LocksHeld)
+            {
+                foreach (Variable tempVar in tempSite.VariableList)
+                {
+                    tempVar.RemoveReadLock(transaction); //remove any read locks we might have
+
+                    if(tempVar.WriteLockHolder==transaction)
+                    {
+                        tempVar.CommitValue();
+                        tempVar.RemoveWriteLock(transaction);
+                    }
+                }
+            }
+        }
     }
 }

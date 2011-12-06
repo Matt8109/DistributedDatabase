@@ -10,6 +10,7 @@ using DistributedDatabase.Core.Entities.Execution;
 using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.StateHolder;
 using DistributedDatabase.Core.Entities.Transactions;
+using DistributedDatabase.Core.Entities.Variables;
 using DistributedDatabase.Core.Utilities.InputUtilities;
 using DistributedDatabase.Core.Utilities.TransactionUtilities;
 
@@ -47,56 +48,12 @@ namespace DistributedDatabase.TransactionManager
                 {
                     foreach (BaseAction tempAction in currentEntity.Actions)
                     {
-                        //begin a transaction of any type
-                        if (tempAction is BeginTransaction)
-                        {
-                            ((BeginTransaction)tempAction).Transaction.Status = TransactionStatus.Running;
-                            ((BeginTransaction)tempAction).Transaction.StartTime = _systemClock.CurrentTick;
-                            State.output.Add(tempAction.ActionName);
-                        }
-
-                        if (tempAction is Read)
-                        {
-                            ReadValue(tempAction);
-                        }
-
-                        if (tempAction is Write)
-                        {
-                            WriteValue(tempAction);
-                        }
-
-                        if (tempAction is Dump)
-                        {
-
-                        }
-
-                        if (tempAction is Fail)
-                        {
-                            var action = (Fail) tempAction;
-                            action.Site.Fail();
-                            State.output.Add("Site");
-                        }
-
-                        if (tempAction is Recover)
-                        {
-                            var action = (Recover)tempAction;
-                            action.Site.Fail();
-                        }
-
-
-                        if (tempAction is EndTransaction)
-                        {
-                            var action = (EndTransaction)tempAction;
-                            var wentDown = false;
-
-                            foreach (Site tempSite in action.Transaction.LocksHeld)
-                            {
-                                if (tempSite.DidGoDown(action.Transaction))
-                                    wentDown = true;
-                            }
-
-                        }
+                        ProcessEntity(tempAction);
                     }
+
+
+                    ProcessPausedTransactions();
+
 
                     _systemClock.Tick();
                 }
@@ -109,7 +66,106 @@ namespace DistributedDatabase.TransactionManager
                     Console.WriteLine(error);
                 }
             }
+
+            foreach (String outpt in State.output)
+                Console.WriteLine(outpt);
             Console.ReadLine();
+        }
+
+        private static void ProcessPausedTransactions()
+        {
+            var blockedTransactions =
+                _transactionList.Transactions.Where(x => x.Status == TransactionStatus.Blocked).ToList();
+
+            foreach (Transaction blocked in blockedTransactions)
+            {
+                blocked.Status = TransactionStatus.Running;
+                var action = blocked.QueuedCommands.Dequeue();
+                ProcessEntity(action);
+            }
+
+        }
+
+        private static void ProcessEntity(BaseAction tempAction)
+        {
+
+            //begin a transaction of any type
+            if (tempAction is BeginTransaction)
+            {
+                ((BeginTransaction)tempAction).Transaction.Status = TransactionStatus.Running;
+                ((BeginTransaction)tempAction).Transaction.StartTime = _systemClock.CurrentTick;
+                State.output.Add(tempAction.ActionName);
+            }
+
+            if (tempAction is Read)
+            {
+                ReadValue(tempAction);
+            }
+
+            if (tempAction is Write)
+            {
+                WriteValue(tempAction);
+            }
+
+            if (tempAction is Dump)
+            {
+            }
+
+            if (tempAction is Fail)
+            {
+                var action = (Fail)tempAction;
+                action.Site.Fail();
+                State.output.Add("Site failure:" + action.Site.Id);
+            }
+
+            if (tempAction is Recover)
+            {
+                var action = (Recover)tempAction;
+                action.Site.Fail();
+                State.output.Add("Site Recovery:" + action.Site.Id);
+            }
+
+
+            if (tempAction is EndTransaction)
+            {
+                var action = (EndTransaction)tempAction;
+                var wentDown = false;
+
+                foreach (Site tempSite in action.Transaction.LocksHeld)
+                {
+                    if (tempSite.DidGoDown(action.Transaction))
+                        wentDown = true;
+                }
+
+                if (wentDown)
+                {
+                    TransactionUtilities.AbortTransaction(action.Transaction);
+                    State.output.Add("Aborted due to site failure: " + action.Transaction.Id);
+                }
+                else
+                {
+                    TransactionUtilities.CommitTransaction(action.Transaction);
+                    State.output.Add("Comitted: " + action.Transaction.Id);
+                }
+
+
+            }
+
+        }
+
+        /// <summary>
+        /// Rereplicates any data that had to wait for a transaction to end.
+        /// </summary>
+        /// <param name="transaction">The transaction.</param>
+        private static void ProcessReReplication(Transaction transaction)
+        {
+            foreach (ValueSitePair pair in transaction.AwaitingReReplication)
+            {
+                var available = _siteList.GetRunningSitesWithVariable(pair.Variable.Id.ToString());
+                var goodVariable = available.First().GetVariable(pair.Variable.Id.ToString());
+                pair.Variable.VariableHistory = goodVariable.VariableHistory;
+                pair.Variable.IsReadable = true;
+            }
         }
 
         private static void WriteValue(BaseAction tempAction)
@@ -130,6 +186,12 @@ namespace DistributedDatabase.TransactionManager
 
                 if (locks.Count != 0)
                 {
+                    foreach (Site temp in locks)
+                    {
+                        var variable = temp.GetVariable(action.VariableId);
+                        variable.Set(action.Value);
+                    }
+
                     State.output.Add("Value Written:" +
                                      locks.First().GetVariable(action.VariableId).GetValue(action.Transaction));
                 }
@@ -137,7 +199,7 @@ namespace DistributedDatabase.TransactionManager
                 {
                     //wait die
                     var transactionsToAbort =
-                        WaitDie.FindTransToAbort(locks.First().GetVariable(action.VariableId),
+                        WaitDie.FindTransToAbort(availableLocations.First().GetVariable(action.VariableId),
                                                  action.Transaction);
 
                     if (transactionsToAbort.Count == 0)
@@ -155,6 +217,12 @@ namespace DistributedDatabase.TransactionManager
 
                             //we need to get locks
                             locks = LockAquirer.AquireWriteLocks(action, availableLocations);
+
+                            foreach (Site temp in locks)
+                            {
+                                var variable = temp.GetVariable(action.VariableId);
+                                variable.Set(action.Value);
+                            }
                             State.output.Add("Value written:" +
                                              locks.First().GetVariable(action.VariableId).GetValue(action.Transaction));
                         }
@@ -195,7 +263,7 @@ namespace DistributedDatabase.TransactionManager
                 {
                     //wait die
                     var transactionsToAbort =
-                        WaitDie.FindTransToAbort(locks.First().GetVariable(action.VariableId),
+                        WaitDie.FindTransToAbort(availableLocations.First().GetVariable(action.VariableId),
                                                  action.Transaction);
 
                     if (transactionsToAbort.Count == 0)

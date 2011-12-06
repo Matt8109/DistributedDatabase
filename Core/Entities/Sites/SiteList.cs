@@ -12,6 +12,7 @@ namespace DistributedDatabase.Core.Entities.Sites
         public SiteList(SystemClock systemClock)
         {
             Sites = new List<Site>();
+            Clock = systemClock;
         }
 
         public List<Site> Sites { get; private set; }

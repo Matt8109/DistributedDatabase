@@ -80,7 +80,7 @@ namespace DistributedDatabase.Core.Entities.Sites
                 FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= currentTime);
 
 
-            return true;
+            return wentDown.Count() != 0;
         }
 
         /// <summary>

@@ -105,6 +105,9 @@ namespace DistributedDatabase.Core.Entities.Variables
         /// <returns></returns>
         public string GetValue(Transaction tempTransaction = null)
         {
+            if (WriteLockHolder != null && tempTransaction == WriteLockHolder && UncomittedValue != String.Empty)
+                return UncomittedValue;
+            
             if (VariableHistory.Count != 0)
             {
                 if (tempTransaction != null && tempTransaction.IsReadOnly)
