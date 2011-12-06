@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using DistributedDatabase.Core.Entities;
 using DistributedDatabase.Core.Entities.Actions;
 using DistributedDatabase.Core.Entities.Execution;
 using DistributedDatabase.Core.Entities.Sites;
+using DistributedDatabase.Core.Entities.StateHolder;
 using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Utilities.InputUtilities;
+using DistributedDatabase.Core.Utilities.TransactionUtilities;
 
 namespace DistributedDatabase.TransactionManager
 {
@@ -23,7 +26,9 @@ namespace DistributedDatabase.TransactionManager
             _systemClock = new SystemClock();
             _siteList = new SiteList(_systemClock);
             _transactionList = new TransactionList(_systemClock);
+            State.output = new List<string>();
 
+            InitializeSites();
 
             GetFile();
             List<string> file = ReadFile();
@@ -33,14 +38,53 @@ namespace DistributedDatabase.TransactionManager
 
             Debug.WriteLine("System starting...");
 
-            //main exection loop
-            foreach (ExecutionEntity currentEntity in _executionPlan)
+            if (errors.Count == 0)
             {
-                foreach (BaseAction tempAction in currentEntity.Actions)
+                //main execution loop
+                foreach (ExecutionEntity currentEntity in _executionPlan)
+                {
+                    foreach (BaseAction tempAction in currentEntity.Actions)
+                    {
+                        //begin a transaction of any type
+                        if (tempAction is BeginTransaction)
+                        {
+                            ((BeginTransaction)tempAction).Transaction.Status = TransactionStatus.Running;
+                            ((BeginTransaction)tempAction).Transaction.StartTime = _systemClock.CurrentTick;
+                            State.output.Add(tempAction.ActionName);
+                        }
+
+                        if (tempAction is Read)
+                        {
+                            var action = (Read)tempAction;
+                            var availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
+
+                            //if there are no sites to read from
+                            if (availableLocations.Count() == 0)
+                            {
+                                TransactionUtilities.BlockTransaction(action.Transaction, action);
+                                State.output.Add("Transaction " + action.Transaction.Id + " blocked due to unavailable sites to read from.");
+                            }
+                        }
 
 
-                _systemClock.Tick();
+                        if (tempAction is EndTransaction)
+                        {
+                            //check rereplication
+                        }
+                    }
+
+                    _systemClock.Tick();
+                }
             }
+            else
+            {
+                Console.WriteLine("Execution stopped, errors encountered: ");
+                foreach (String error in errors)
+                {
+                    Console.WriteLine(error);
+                }
+            }
+            Console.ReadLine();
         }
 
         /// <summary>
@@ -60,6 +104,17 @@ namespace DistributedDatabase.TransactionManager
         {
             var reader = new FileReader(_fileName);
             return reader.ReadFile();
+        }
+
+        /// <summary>
+        /// Initializes the sites.
+        /// </summary>
+        public static void InitializeSites()
+        {
+            for (int i = 1; i < 11; i++)
+            {
+                _siteList.AddSite(new Site(i, _siteList, _systemClock));
+            }
         }
     }
 }

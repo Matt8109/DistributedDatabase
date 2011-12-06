@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using DistributedDatabase.Core.Entities;
+using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Entities.Variables;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,7 +16,7 @@ namespace DistributedDatabase.Test.Locking
     [TestClass]
     public class SiteFailLockTest
     {
-        public SiteFailLockTest()
+        public SiteFailLockTest() :base()
         {
             //
             // TODO: Add constructor logic here
@@ -66,7 +67,8 @@ namespace DistributedDatabase.Test.Locking
         public void TestVariableResetOnFailure()
         {
             var systemClock = new SystemClock();
-            var variable = new Variable(1, systemClock);
+            var site = new Site(1, new SiteList(systemClock), systemClock);
+            var variable = new Variable(1, site, systemClock);
 
             var transactionOne = new Transaction("T1", systemClock);
 

@@ -14,11 +14,11 @@ namespace DistributedDatabase.Test.Comitting
     /// Summary description for ReReplicationTest
     /// </summary>
     [TestClass]
-    public class ReReplicationTest
+    public class ReReplicationTest : TestBase
     {
         public ReReplicationTest()
-        {
-            //
+            : base()
+        {            //
             // TODO: Add constructor logic here
             //
         }
@@ -63,7 +63,7 @@ namespace DistributedDatabase.Test.Comitting
         //
         #endregion
 
-        [TestMethod]
+        //[TestMethod]
         public void TestMethod1()
         {
             var systemClock = new SystemClock();
@@ -75,8 +75,8 @@ namespace DistributedDatabase.Test.Comitting
             siteList.AddSite(siteOne);
             siteList.AddSite(siteTwo);
 
-            var variableOne = new Variable(2, systemClock);
-            var variableTwo = new Variable(2, systemClock);
+            var variableOne = new Variable(2, siteOne, systemClock);
+            var variableTwo = new Variable(2, siteTwo, systemClock);
 
             var transaction = new Transaction("test", systemClock);
 

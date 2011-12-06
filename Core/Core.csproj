@@ -51,6 +51,7 @@
     <Compile Include="Entities\Execution\ExecutionEntity.cs" />
     <Compile Include="Entities\Execution\ExecutionPlan.cs" />
     <Compile Include="Entities\Sites\FailureRecoverPair.cs" />
+    <Compile Include="Entities\StateHolder\State.cs" />
     <Compile Include="Entities\SystemClock.cs" />
     <Compile Include="Entities\Transactions\Transaction.cs" />
     <Compile Include="Entities\Transactions\TransactionList.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Entities\Sites\Site.cs" />
     <Compile Include="Entities\Sites\SiteList.cs" />
     <Compile Include="Entities\Variables\Variable.cs" />
+    <Compile Include="Utilities\TransactionUtilities\TransactionUtilities.cs" />
     <Compile Include="Utilities\VariableUtilities\VariableUtilities.cs" />
     <Compile Include="LockAcquisition\LockAquirer.cs" />
   </ItemGroup>

@@ -40,16 +40,40 @@ namespace DistributedDatabase.Core.Entities.Sites
             return Sites.Where(x => x.Id == id).First();
         }
 
-        public List<Site> FindVariable(int id)
+        public List<Site> FindVariable(string id)
         {
+            List<Site> siteList;
 
-            if (VariableUtilities.IsReplicated(id))
+            if (VariableUtilities.IsReplicated(VariableUtilities.VariableIdToInt(id)))
             {
-                return Sites;
+                siteList = Sites;
             }
             else
             {
-                return Sites.Where(x => x.Id == id).ToList();
+                var variableLoc = VariableUtilities.CalculateSite(VariableUtilities.VariableIdToInt(id));
+
+                siteList = Sites.Where(x => x.Id == variableLoc).ToList();
+            }
+
+            //make sure the variables exist first.
+            if (Sites.First().VariableList.Where(x => x.Id.Equals(id)).Count() == 0)
+            {
+                CreateVariable(siteList, id);
+            }
+
+            return siteList;
+        }
+
+        /// <summary>
+        /// Creates the variable at all sites given.
+        /// </summary>
+        /// <param name="siteToCreateVariable">The site to create variable.</param>
+        /// <param name="id">The id.</param>
+        private void CreateVariable(List<Site> siteToCreateVariable, string id)
+        {
+            foreach (Site temp in siteToCreateVariable)
+            {
+                temp.VariableList.Add(new Variable(VariableUtilities.VariableIdToInt(id), temp, Clock));
             }
         }
 
@@ -62,6 +86,18 @@ namespace DistributedDatabase.Core.Entities.Sites
         public List<Site> GetFailedSites()
         {
             return (List<Site>)Sites.Where(x => x.IsFailed);
+        }
+
+        /// <summary>
+        /// Gets the running sites that hold a given variable id
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <returns></returns>
+        public List<Site> GetRunningSitesWithVariable(string id)
+        {
+            var variableLocations = FindVariable(id);
+
+            return variableLocations.Where(x => !x.IsFailed).ToList();
         }
     }
 }

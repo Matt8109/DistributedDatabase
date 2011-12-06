@@ -1,4 +1,6 @@
-﻿using Rhino.Mocks;
+﻿using System.Collections.Generic;
+using DistributedDatabase.Core.Entities.StateHolder;
+using Rhino.Mocks;
 
 namespace DistributedDatabase.Test
 {
@@ -7,6 +9,10 @@ namespace DistributedDatabase.Test
     /// </summary>
     public abstract class TestBase
     {
+        public TestBase()
+        {
+            State.output=new List<string>();
+        }
         /// <summary>
         ///   Create a mock
         /// </summary>

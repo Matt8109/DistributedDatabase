@@ -5,6 +5,7 @@ using System.Text;
 using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Utilities.InputUtilities;
+using DistributedDatabase.Core.Utilities.VariableUtilities;
 
 namespace DistributedDatabase.Core.Entities.Actions
 {
@@ -36,7 +37,8 @@ namespace DistributedDatabase.Core.Entities.Actions
             if (Transaction == null)
                 throw new Exception("Transaction not found: " + commandText);
 
-            Variable = parameters[1];
+            VariableId = parameters[1];
+            Value = parameters[2];
         }
 
         /// <summary>
@@ -53,11 +55,18 @@ namespace DistributedDatabase.Core.Entities.Actions
         /// <value>
         /// The variable.
         /// </value>
-        public String Variable { get; set; }
+        public String VariableId { get; set; }
+
+        /// <summary>
+        /// Gets the variable in int form.
+        /// </summary>
+        public int VariableIdInt { get { return VariableUtilities.VariableIdToInt(VariableId); } }
+
+        public string Value { get; set; }
 
         public override string ActionName
         {
-            get { return "Reading " + Variable + " for " + Transaction.Id; }
+            get { return "Reading " + VariableId + " for " + Transaction.Id; }
         }
     }
 }

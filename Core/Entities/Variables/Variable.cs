@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Extensions;
 using DistributedDatabase.Core.Utilities.VariableUtilities;
@@ -9,11 +10,12 @@ namespace DistributedDatabase.Core.Entities.Variables
 {
     public class Variable
     {
-        public Variable(int id, SystemClock systemClock)
+        public Variable(int id, Site site, SystemClock systemClock)
         {
             ReadLockHolders = new List<Transaction>();
             WriteLockHolder = null;
             SystemClock = systemClock;
+            Site = site;
             VariableHistory = new List<VariableValue>();
             UncomittedValue = string.Empty;
             IsReadable = true;
@@ -24,7 +26,7 @@ namespace DistributedDatabase.Core.Entities.Variables
         /// Initializes a copy of a variable class.
         /// </summary>
         /// <param name="tempVariable">The temp variable.</param>
-        public Variable(Variable tempVariable )
+        public Variable(Variable tempVariable)
         {
             throw new NotImplementedException();
             SystemClock = tempVariable.SystemClock;
@@ -38,6 +40,8 @@ namespace DistributedDatabase.Core.Entities.Variables
         public int Id { get; private set; }
 
         public SystemClock SystemClock { get; set; }
+
+        public Site Site { get; set; }
 
         public bool IsReadLocked
         {
@@ -136,7 +140,11 @@ namespace DistributedDatabase.Core.Entities.Variables
 
             //there is no write lock, so add the transaction to the list of read lock holders
             if (!ReadLockHolders.Contains(tempTransaction))
+            {
                 ReadLockHolders.Add(tempTransaction);
+                tempTransaction.AddLockHeldLocation(Site);
+            }
+                
 
             return ReadLockHolders;
         }
@@ -159,6 +167,7 @@ namespace DistributedDatabase.Core.Entities.Variables
                 if (ReadLockHolders.Count == 1 && ReadLockHolders.Contains(tempTransaction))
                 {
                     WriteLockHolder = tempTransaction;
+                    tempTransaction.AddLockHeldLocation(Site);
                     return new List<Transaction> { WriteLockHolder };
                 }
                 else //it doesnt, sad panda
@@ -174,6 +183,7 @@ namespace DistributedDatabase.Core.Entities.Variables
             else
             {
                 WriteLockHolder = tempTransaction;
+                tempTransaction.AddLockHeldLocation(Site);
                 return new List<Transaction> { WriteLockHolder };
             }
         }

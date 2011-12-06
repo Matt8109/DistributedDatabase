@@ -19,6 +19,7 @@ namespace DistributedDatabase.Core.Entities.Actions
                 throw new Exception("Invalid command format: " + commandText);
 
             var transaction = new Transaction(info[1], systemClock) {IsReadOnly = info[0].ToLower().Equals("beginro")};
+            transactionList.AddTransaction(transaction);
         }
 
         public Transaction Transaction { get; set; }

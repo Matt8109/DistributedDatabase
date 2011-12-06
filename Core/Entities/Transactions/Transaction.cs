@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using DistributedDatabase.Core.Entities.Actions;
+using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.Variables;
+using DistributedDatabase.Core.Extensions;
 
 namespace DistributedDatabase.Core.Entities.Transactions
 {
@@ -31,7 +33,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
         {
             Id = transactionId;
             Status = TransactionStatus.Created;
-            LocksHeld = new List<String>();
+            LocksHeld = new List<Site>();
             QueuedCommands = new Queue<BaseAction>();
             AwaitingReReplication = new List<ValueSitePair>();
             SystemClock = systemClock;
@@ -75,7 +77,16 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// <value>
         /// The locks held.
         /// </value>
-        public List<String> LocksHeld { get; set; }
+        public List<Site> LocksHeld { get; set; }
+
+        /// <summary>
+        /// Add a new location the transaction holds a lock at.
+        /// </summary>
+        /// <param name="location">The location.</param>
+        public void AddLockHeldLocation(Site location)
+        {
+            LocksHeld.SilentAdd(location);
+        }
 
         /// <summary>
         ///  Actions that have yet to be executed because the transaction is waiting on something.

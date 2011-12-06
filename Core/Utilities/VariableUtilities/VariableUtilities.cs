@@ -28,5 +28,18 @@ namespace DistributedDatabase.Core.Utilities.VariableUtilities
         {
             return (id + 1) % 10;
         }
+
+        /// <summary>
+        /// Converts a variable id to an int.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <returns></returns>
+        public static int VariableIdToInt(string id)
+        {
+            if (id.Length > 1 && id.Substring(1, 1).ToLower().Equals("x"))
+                return int.Parse(id.Substring(1));
+            else
+                return int.Parse(id);
+        }
     }
 }

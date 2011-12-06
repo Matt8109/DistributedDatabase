@@ -95,10 +95,10 @@ namespace DistributedDatabase.Core.Utilities.InputUtilities
             if (command.Equals("end"))
                 return new EndTransaction(lineElement, transactionList, siteList, systemClock);
 
-            if (command.Equals("read"))
+            if (command.Equals("r"))
                 return new Read(lineElement, transactionList, siteList, systemClock);
 
-            if (command.Equals("write"))
+            if (command.Equals("w"))
                 return new Write(lineElement, transactionList, siteList, systemClock);
 
             if (command.Equals("fail"))

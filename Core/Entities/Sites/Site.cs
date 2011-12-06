@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using DistributedDatabase.Core.Entities.StateHolder;
 using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Entities.Variables;
 using DistributedDatabase.Core.Extensions;
@@ -21,8 +22,9 @@ namespace DistributedDatabase.Core.Entities.Sites
             Id = siteId;
             VariableList = new List<Variable>();
             SiteList = siteList;
-            FailTimes=new List<FailureRecoverPair>();
+            FailTimes = new List<FailureRecoverPair>();
             SystemClock = systemClock;
+            IsFailed = false;
         }
 
         /// <summary>
@@ -70,10 +72,11 @@ namespace DistributedDatabase.Core.Entities.Sites
         /// <returns></returns>
         public bool DidGoDown(Transaction transaction)
         {
-            var startTime = transaction.StartTime;
-            var currentTime = SystemClock.CurrentTick;
+            int startTime = transaction.StartTime;
+            int currentTime = SystemClock.CurrentTick;
 
-            var wentDown = FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= currentTime);
+            IEnumerable<FailureRecoverPair> wentDown =
+                FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= currentTime);
 
 
             return true;
@@ -104,7 +107,7 @@ namespace DistributedDatabase.Core.Entities.Sites
         /// </summary>
         protected void RecoverNonReplicatedVariables()
         {
-            var nonReplicatedVariables = VariableList.Where(x => !x.IsReplicated);
+            IEnumerable<Variable> nonReplicatedVariables = VariableList.Where(x => !x.IsReplicated);
 
             foreach (Variable currentVariable in nonReplicatedVariables)
             {
@@ -114,12 +117,13 @@ namespace DistributedDatabase.Core.Entities.Sites
 
         protected void RecoverReplicatedVariables()
         {
-            var replicatedVariables = VariableList.Where(x => x.IsReplicated);
+            IEnumerable<Variable> replicatedVariables = VariableList.Where(x => x.IsReplicated);
 
             //attempt to recover the variables
             foreach (Variable currentVariable in replicatedVariables)
             {
-                var locations = SiteList.FindVariable(currentVariable.Id).Where(x => x.IsFailed == false);
+                IEnumerable<Site> locations =
+                    SiteList.FindVariable(currentVariable.Id.ToString()).Where(x => x.IsFailed == false);
 
                 if (locations.Count() == 0)
                     throw new Exception("All sites are down, unable to continue.");
@@ -144,6 +148,9 @@ namespace DistributedDatabase.Core.Entities.Sites
                         Debug.WriteLine("Replicated variable " + currentVariable.Id +
                                         " put on re-replication list because of pending write by " +
                                         availableVariable.WriteLockHolder.Id);
+                        State.output.Add("Replicated variable " + currentVariable.Id +
+                                         " put on re-replication list because of pending write by " +
+                                         availableVariable.WriteLockHolder.Id);
                     }
                     else
                     {
@@ -170,8 +177,8 @@ namespace DistributedDatabase.Core.Entities.Sites
         /// </summary>
         public List<Transaction> Fail()
         {
-            var affectedTransactions = FailSite();
-            Debug.WriteLine("Site " + this.Id + " failed.");
+            List<Transaction> affectedTransactions = FailSite();
+            Debug.WriteLine("Site " + Id + " failed.");
 
             return affectedTransactions;
         }
