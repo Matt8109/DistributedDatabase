@@ -60,10 +60,41 @@ namespace DistributedDatabase.TransactionManager
                             ReadValue(tempAction);
                         }
 
+                        if (tempAction is Write)
+                        {
+                            WriteValue(tempAction);
+                        }
+
+                        if (tempAction is Dump)
+                        {
+
+                        }
+
+                        if (tempAction is Fail)
+                        {
+                            var action = (Fail) tempAction;
+                            action.Site.Fail();
+                            State.output.Add("Site");
+                        }
+
+                        if (tempAction is Recover)
+                        {
+                            var action = (Recover)tempAction;
+                            action.Site.Fail();
+                        }
+
 
                         if (tempAction is EndTransaction)
                         {
-                            //check rereplication
+                            var action = (EndTransaction)tempAction;
+                            var wentDown = false;
+
+                            foreach (Site tempSite in action.Transaction.LocksHeld)
+                            {
+                                if (tempSite.DidGoDown(action.Transaction))
+                                    wentDown = true;
+                            }
+
                         }
                     }
 
@@ -81,9 +112,60 @@ namespace DistributedDatabase.TransactionManager
             Console.ReadLine();
         }
 
+        private static void WriteValue(BaseAction tempAction)
+        {
+            var action = (Write)tempAction;
+            var availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
+
+            //if there are no sites to read from
+            if (availableLocations.Count() == 0)
+            {
+                TransactionUtilities.BlockTransaction(action.Transaction, action);
+                State.output.Add("Transaction " + action.Transaction.Id + " blocked due to unavailable sites to write to.");
+            }
+            else
+            {
+                //we need to get locks
+                var locks = LockAquirer.AquireWriteLocks(action, availableLocations);
+
+                if (locks.Count != 0)
+                {
+                    State.output.Add("Value Written:" +
+                                     locks.First().GetVariable(action.VariableId).GetValue(action.Transaction));
+                }
+                else
+                {
+                    //wait die
+                    var transactionsToAbort =
+                        WaitDie.FindTransToAbort(locks.First().GetVariable(action.VariableId),
+                                                 action.Transaction);
+
+                    if (transactionsToAbort.Count == 0)
+                    {
+                        TransactionUtilities.BlockTransaction(action.Transaction, action);
+                        State.output.Add("Transaction " + action.Transaction.Id +
+                                         " blocked due to unavailable sites to write to.");
+                    }
+                    else
+                    {
+                        foreach (Transaction tempTrans in transactionsToAbort)
+                        {
+                            TransactionUtilities.AbortTransaction(tempTrans);
+                            State.output.Add("Aborted Transaction " + tempTrans.Id + "due to wait-die.");
+
+                            //we need to get locks
+                            locks = LockAquirer.AquireWriteLocks(action, availableLocations);
+                            State.output.Add("Value written:" +
+                                             locks.First().GetVariable(action.VariableId).GetValue(action.Transaction));
+                        }
+                    }
+                }
+            }
+        }
+
         private static void ReadValue(BaseAction tempAction)
         {
-            var action = (Read) tempAction;
+            var action = (Read)tempAction;
             var availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
 
             //if there are no sites to read from

@@ -38,7 +38,6 @@ namespace DistributedDatabase.Core.Entities.Actions
                 throw new Exception("Transaction not found: " + commandText);
 
             VariableId = parameters[1];
-            Value = parameters[2];
         }
 
         /// <summary>

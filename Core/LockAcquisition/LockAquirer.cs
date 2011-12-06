@@ -34,12 +34,12 @@ namespace DistributedDatabase.Core
         }
 
         /// <summary>
-        /// Aquires the write locks. Either get them all, or none.
+        /// Acquires the write locks. Either get them all, or none.
         /// </summary>
         /// <param name="action">The action.</param>
         /// <param name="availableSiteList">The available site list.</param>
         /// <returns></returns>
-        public static List<Site> AquireWriteLocks(Read action, List<Site> availableSiteList)
+        public static List<Site> AquireWriteLocks(Write action, List<Site> availableSiteList)
         {
             var lockedSites = new List<Site>();
 

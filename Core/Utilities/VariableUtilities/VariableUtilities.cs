@@ -36,7 +36,7 @@ namespace DistributedDatabase.Core.Utilities.VariableUtilities
         /// <returns></returns>
         public static int VariableIdToInt(string id)
         {
-            if (id.Length > 1 && id.Substring(1, 1).ToLower().Equals("x"))
+            if (id.Length > 1 && id.Substring(0, 1).ToLower().Equals("x"))
                 return int.Parse(id.Substring(1));
             else
                 return int.Parse(id);

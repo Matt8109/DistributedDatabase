@@ -97,7 +97,17 @@ namespace DistributedDatabase.Core.Entities.Sites
         {
             var variableLocations = FindVariable(id);
 
-            return variableLocations.Where(x => !x.IsFailed).ToList();
+            var locations = variableLocations.Where(x => !x.IsFailed).ToList();
+
+            var isReadable = new List<Site>();
+
+            foreach (Site temp in locations)
+            {
+                if (temp.GetVariable(id).IsReadable)
+                    isReadable.Add(temp);
+            }
+
+            return isReadable;
         }
     }
 }
