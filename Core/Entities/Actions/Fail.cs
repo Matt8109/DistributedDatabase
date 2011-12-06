@@ -7,7 +7,7 @@ namespace DistributedDatabase.Core.Entities.Actions
     /// <summary>
     /// Represents a site failure action
     /// </summary>
-    internal class Fail : BaseAction
+    public class Fail : BaseAction
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Fail"/> class.

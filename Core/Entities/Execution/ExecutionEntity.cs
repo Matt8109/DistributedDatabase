@@ -11,20 +11,20 @@ namespace DistributedDatabase.Core.Entities.Execution
     {
         public ExecutionEntity()
         {
-            Action = new List<BaseAction>();
+            Actions = new List<BaseAction>();
         }
 
         public ExecutionEntity(BaseAction action)
         {
-            Action = new List<BaseAction>();
-            Action.Add(action);
+            Actions = new List<BaseAction>();
+            Actions.Add(action);
         }
 
-        public List<BaseAction> Action { get; set; }
+        public List<BaseAction> Actions { get; set; }
 
         public void AddAction(BaseAction action)
         {
-            Action.Add(action);
+            Actions.Add(action);
         }
     }
 }

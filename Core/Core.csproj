@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Entities\Actions\BaseAction.cs" />
     <Compile Include="Entities\Actions\BeginTransaction.cs" />
+    <Compile Include="Entities\Actions\Dump.cs" />
     <Compile Include="Entities\Actions\EndTransaction.cs" />
     <Compile Include="Entities\Actions\Fail.cs" />
     <Compile Include="Entities\Actions\Read.cs" />
@@ -76,7 +77,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="LockAcquisition\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>
