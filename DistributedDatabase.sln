@@ -27,9 +27,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RhinoMocks", "RhinoMocks", 
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = DistributedDatabase.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -39,16 +36,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|x86.ActiveCfg = Debug|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|x86.Build.0 = Debug|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|Any CPU.ActiveCfg = Release|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|Mixed Platforms.Build.0 = Release|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|x86.ActiveCfg = Release|x86
-		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|x86.Build.0 = Release|x86
 		{021F2551-FE22-456C-99DC-03BC8DD1451D}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{021F2551-FE22-456C-99DC-03BC8DD1451D}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{021F2551-FE22-456C-99DC-03BC8DD1451D}.Debug|Mixed Platforms.Build.0 = Debug|x86
@@ -79,11 +66,28 @@ Global
 		{7CEF185B-DEF1-4291-A1E4-40990E6F31C8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{7CEF185B-DEF1-4291-A1E4-40990E6F31C8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{7CEF185B-DEF1-4291-A1E4-40990E6F31C8}.Release|x86.ActiveCfg = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|Any CPU.Build.0 = Debug|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|x86.ActiveCfg = Debug|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Debug|x86.Build.0 = Debug|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|Any CPU.ActiveCfg = Release|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|Mixed Platforms.Build.0 = Release|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|x86.ActiveCfg = Release|x86
+		{7FB5C669-6C83-4EFD-ADCB-ED99C81BCE16}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F0F4AB59-B230-45D9-8C65-240D8365A174} = {B7A33C29-C930-4188-8455-7BB1AD3E5792}
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = TransactionManager\TransactionManager.csproj
+	EndGlobalSection
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = DistributedDatabase.vsmdi
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
