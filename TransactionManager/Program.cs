@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using DistributedDatabase.Core;
 using DistributedDatabase.Core.Entities;
 using DistributedDatabase.Core.Entities.Actions;
+using DistributedDatabase.Core.Entities.ConflictResolution;
 using DistributedDatabase.Core.Entities.Execution;
 using DistributedDatabase.Core.Entities.Sites;
 using DistributedDatabase.Core.Entities.StateHolder;
@@ -55,15 +57,7 @@ namespace DistributedDatabase.TransactionManager
 
                         if (tempAction is Read)
                         {
-                            var action = (Read)tempAction;
-                            var availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
-
-                            //if there are no sites to read from
-                            if (availableLocations.Count() == 0)
-                            {
-                                TransactionUtilities.BlockTransaction(action.Transaction, action);
-                                State.output.Add("Transaction " + action.Transaction.Id + " blocked due to unavailable sites to read from.");
-                            }
+                            ReadValue(tempAction);
                         }
 
 
@@ -85,6 +79,64 @@ namespace DistributedDatabase.TransactionManager
                 }
             }
             Console.ReadLine();
+        }
+
+        private static void ReadValue(BaseAction tempAction)
+        {
+            var action = (Read) tempAction;
+            var availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
+
+            //if there are no sites to read from
+            if (availableLocations.Count() == 0)
+            {
+                TransactionUtilities.BlockTransaction(action.Transaction, action);
+                State.output.Add("Transaction " + action.Transaction.Id + " blocked due to unavailable sites to read from.");
+            }
+
+            if (action.Transaction.IsReadOnly)
+            {
+                //read only, no locks needed
+                var siteToReadFrom = availableLocations.First();
+
+                State.output.Add("Value Read:" + siteToReadFrom.GetVariable(action.VariableId).GetValue(action.Transaction));
+            }
+            else
+            {
+                //we need to get locks
+                var locks = LockAquirer.AquireReadLock(action, availableLocations);
+
+                if (locks.Count != 0)
+                {
+                    State.output.Add("Value Read:" + locks.First().GetVariable(action.VariableId).GetValue(action.Transaction));
+                }
+                else
+                {
+                    //wait die
+                    var transactionsToAbort =
+                        WaitDie.FindTransToAbort(locks.First().GetVariable(action.VariableId),
+                                                 action.Transaction);
+
+                    if (transactionsToAbort.Count == 0)
+                    {
+                        TransactionUtilities.BlockTransaction(action.Transaction, action);
+                        State.output.Add("Transaction " + action.Transaction.Id +
+                                         " blocked due to unavailable sites to read from.");
+                    }
+                    else
+                    {
+                        foreach (Transaction tempTrans in transactionsToAbort)
+                        {
+                            TransactionUtilities.AbortTransaction(tempTrans);
+                            State.output.Add("Aborted Transaction " + tempTrans.Id + "due to wait-die.");
+
+                            //we need to get locks
+                            locks = LockAquirer.AquireReadLock(action, availableLocations);
+                            State.output.Add("Value Read:" +
+                                             locks.First().GetVariable(action.VariableId).GetValue(action.Transaction));
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>

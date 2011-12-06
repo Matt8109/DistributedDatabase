@@ -6,6 +6,7 @@ using DistributedDatabase.Core.Entities.StateHolder;
 using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Entities.Variables;
 using DistributedDatabase.Core.Extensions;
+using DistributedDatabase.Core.Utilities.VariableUtilities;
 
 namespace DistributedDatabase.Core.Entities.Sites
 {
@@ -90,6 +91,11 @@ namespace DistributedDatabase.Core.Entities.Sites
         public Variable GetVariable(int variableId)
         {
             return VariableList.Where(x => x.Id == variableId).First();
+        }
+
+        public Variable GetVariable(string variableId)
+        {
+            return GetVariable(VariableUtilities.VariableIdToInt(variableId));
         }
 
         public void Recover()

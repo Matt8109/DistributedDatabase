@@ -208,6 +208,11 @@ namespace DistributedDatabase.Core.Entities.Variables
                 WriteLockHolder = null;
         }
 
+        public void ClearUncomitted()
+        {
+            UncomittedValue = String.Empty;
+        }
+
         /// <summary>
         /// Triggered when the site fails.
         /// </summary>
