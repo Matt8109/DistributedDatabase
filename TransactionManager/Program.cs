@@ -13,6 +13,7 @@ using DistributedDatabase.Core.Entities.Transactions;
 using DistributedDatabase.Core.Entities.Variables;
 using DistributedDatabase.Core.Utilities.InputUtilities;
 using DistributedDatabase.Core.Utilities.TransactionUtilities;
+using DistributedDatabase.Core.Utilities.VariableUtilities;
 
 namespace DistributedDatabase.TransactionManager
 {
@@ -109,6 +110,29 @@ namespace DistributedDatabase.TransactionManager
 
             if (tempAction is Dump)
             {
+                var action = (Dump)tempAction;
+                if (action.DumpFull)
+                {
+                    foreach (Site tempSite in _siteList.Sites)
+                    {
+                        var outputString = "Site: " + tempSite.Id + " - ";
+                        foreach (Variable tempvar in tempSite.VariableList)
+                        {
+                            outputString = outputString + tempvar.Id + ":" + tempvar.GetValue() + " ";
+                        }
+                        State.output.Add("Dump - " + outputString);
+                    }
+                } else if (action.DumpObject.Substring(0,1).ToLower().Equals("x"))
+                {
+                    //print out variable at each site
+                    var locations = _siteList.FindVariable(VariableUtilities.VariableIdToInt(action.DumpObject).ToString());
+                    var outputString = "Variable " + VariableUtilities.VariableIdToInt(action.DumpObject).ToString() + " - ";
+
+                    foreach (Site tempsite in locations)
+                    {
+                        //var site = 
+                    }
+                }
             }
 
             if (tempAction is Fail)
