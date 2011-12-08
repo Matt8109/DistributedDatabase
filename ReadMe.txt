@@ -1,0 +1,1 @@
+Most of the code is in the core folder. The main skeleton is in the Transaction manager folder. There are also some unit tests in the Test folder. Testing scripts used, in the tests folder, were the ones supplied and sanitized - removing comments. 

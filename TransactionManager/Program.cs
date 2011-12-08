@@ -283,7 +283,7 @@ namespace DistributedDatabase.TransactionManager
 		public static void GetFile ()
 		{
 			Console.WriteLine ("Please enter the fully qualified file location: ");
-			_fileName = Console.ReadLine ();
+			_fileName = Console.ReadLine();
 		}
 
 		/// <summary>
