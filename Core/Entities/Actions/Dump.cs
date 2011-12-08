@@ -14,7 +14,7 @@ namespace DistributedDatabase.Core.Entities.Actions
         {
             string[] info = commandText.Split(new[] { '(', ')' });
 
-            DumpFull = info.Count() == 2;
+            DumpFull = info[1].Trim().Equals(String.Empty);
 
             if (info.Count() == 3)
                 DumpObject = info[1];

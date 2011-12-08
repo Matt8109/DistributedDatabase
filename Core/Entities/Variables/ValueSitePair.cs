@@ -46,5 +46,11 @@ namespace DistributedDatabase.Core.Entities.Variables
         {
             return !Equals(left, right);
         }
+
+        public override string ToString()
+        {
+            return Site.Id.ToString() + ":" +
+            Variable.Id.ToString();
+        }
     }
 }

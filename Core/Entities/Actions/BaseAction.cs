@@ -19,7 +19,9 @@ namespace DistributedDatabase.Core.Entities.Actions
         public BaseAction(string commandText, TransactionList transactionList, SiteList siteList, SystemClock systemClock)
         {
             CommandText = commandText;
-
+            TransactionList = transactionList;
+            SiteList = siteList;
+            systemClock = systemClock;
         }
 
         /// <summary>

@@ -4,19 +4,19 @@ using DistributedDatabase.Core.Entities.Transactions;
 
 namespace DistributedDatabase.Core.Entities.Actions
 {
-	public class Recover :BaseAction
-	{
+    public class Recover : BaseAction
+    {
         public Recover(string commandText, TransactionList transactionList, SiteList siteList, SystemClock systemClock)
             : base(commandText, transactionList, siteList, systemClock)
-		{
+        {
             string[] info = commandText.Split(new[] { '(', ')' });
 
             if (info.Length != 3)
                 throw new Exception("Invalid command format: " + commandText);
 
-            Site site = siteList.GetSite(int.Parse(info[1]));
+            Site = siteList.GetSite(int.Parse(info[1]));
 
-            if (site == null)
+            if (Site == null)
                 throw new Exception("Site not found:" + info[1]);
         }
 
@@ -26,6 +26,6 @@ namespace DistributedDatabase.Core.Entities.Actions
         {
             get { return "Recovery at Site: " + Site.Id; }
         }
-	}
+    }
 }
 

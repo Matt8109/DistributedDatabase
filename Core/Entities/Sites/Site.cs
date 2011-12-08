@@ -123,13 +123,13 @@ namespace DistributedDatabase.Core.Entities.Sites
 
         protected void RecoverReplicatedVariables()
         {
-            IEnumerable<Variable> replicatedVariables = VariableList.Where(x => x.IsReplicated);
+            var replicatedVariables = VariableList.Where(x => x.IsReplicated).ToList();
 
             //attempt to recover the variables
             foreach (Variable currentVariable in replicatedVariables)
             {
-                IEnumerable<Site> locations =
-                    SiteList.FindVariable(currentVariable.Id.ToString()).Where(x => x.IsFailed == false);
+                var locations =
+                    SiteList.FindVariable(currentVariable.Id.ToString()).Where(x => x.IsFailed == false).ToList();
 
                 if (locations.Count() == 0)
                     throw new Exception("All sites are down, unable to continue.");
@@ -154,7 +154,7 @@ namespace DistributedDatabase.Core.Entities.Sites
                         Debug.WriteLine("Replicated variable " + currentVariable.Id +
                                         " put on re-replication list because of pending write by " +
                                         availableVariable.WriteLockHolder.Id);
-                        State.output.Add("Replicated variable " + currentVariable.Id +
+                        State.Add("Replicated variable " + currentVariable.Id +
                                          " put on re-replication list because of pending write by " +
                                          availableVariable.WriteLockHolder.Id);
                     }

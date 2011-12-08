@@ -105,7 +105,7 @@ namespace DistributedDatabase.Core.Utilities.InputUtilities
                 return new Fail(lineElement, transactionList, siteList, systemClock);
 
             if (command.Equals("recover"))
-                return new Fail(lineElement, transactionList, siteList, systemClock);
+                return new Recover(lineElement, transactionList, siteList, systemClock);
 
             if (command.Equals("dump"))
                 return new Dump(lineElement, transactionList, siteList, systemClock);
