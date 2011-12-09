@@ -53,7 +53,6 @@ namespace DistributedDatabase.TransactionManager
                         ProcessEntity(tempAction);
                     }
 
-
                     ProcessPausedTransactions();
 
 
@@ -115,7 +114,8 @@ namespace DistributedDatabase.TransactionManager
                     foreach (Site tempSite in _siteList.Sites)
                     {
                         string outputString = "Site: " + tempSite.Id + " - ";
-                        foreach (Variable tempvar in tempSite.VariableList)
+                        var variables = tempSite.VariableList.OrderBy(x => x.Id);
+                        foreach (Variable tempvar in variables)
                         {
                             outputString = outputString + tempvar.Id + ":" + tempvar.GetValue() + " ";
                         }
@@ -190,7 +190,7 @@ namespace DistributedDatabase.TransactionManager
                     State.Add(action.Transaction.Id + " comitted: " + action.Transaction.Id);
                 }
 
-               //rereplicate any needed variables
+                //rereplicate any needed variables
                 ProcessReReplication(action.Transaction);
             }
         }
@@ -228,7 +228,7 @@ namespace DistributedDatabase.TransactionManager
             if (availableLocations.Count() == 0)
             {
                 TransactionUtilities.BlockTransaction(action.Transaction, action);
-                output = output + "Transaction " + action.Transaction.Id +
+                output = output + "\nTransaction " + action.Transaction.Id +
                          " blocked due to unavailable sites to write to.";
             }
             else
@@ -253,41 +253,20 @@ namespace DistributedDatabase.TransactionManager
                 else
                 {
                     //wait die
-                    List<Transaction> transactionsToAbort =
-                        WaitDie.FindTransToAbort(availableLocations.First().GetVariable(action.VariableId),
-                                                 action.Transaction);
+                    var shouldAbort =
+                         WaitDie.ShouldAbort(availableLocations.First().GetVariable(action.VariableId),
+                                                  action.Transaction);
 
-                    if (transactionsToAbort.Count == 0)
+                    if (shouldAbort)
                     {
-                        TransactionUtilities.BlockTransaction(action.Transaction, action);
-                        output = output + "Transaction " + action.Transaction.Id +
-                                 " blocked due to unavailable sites to write to.";
+                        TransactionUtilities.AbortTransaction(action.Transaction);
+                        output = output + "\nAborted Transaction " + action.Transaction.Id + " due to wait-die.";
                     }
                     else
                     {
-                        foreach (Transaction tempTrans in transactionsToAbort)
-                        {
-                            TransactionUtilities.AbortTransaction(tempTrans);
-                            output = output + "Aborted Transaction " + tempTrans.Id + "due to wait-die.";
-                            ;
-                            //we need to get locks
-                            locks = LockAquirer.AquireWriteLocks(action, availableLocations);
-
-                            foreach (Site temp in locks)
-                            {
-                                Variable variable = temp.GetVariable(action.VariableId);
-                                variable.Set(action.Value);
-
-                                //add a record saying we used the transaction
-                                action.Transaction.SiteUsedList.Add(new SiteAccessRecord
-                                                                        {
-                                                                            Site = temp,
-                                                                            TimeStamp = _systemClock.CurrentTick
-                                                                        });
-                            }
-                            output = output + "Value written:" +
-                                     locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
-                        }
+                        TransactionUtilities.BlockTransaction(action.Transaction, action);
+                        output = output + "\nTransaction " + action.Transaction.Id +
+                                 " blocked due to unavailable sites to write to.";
                     }
                 }
             }
@@ -305,7 +284,7 @@ namespace DistributedDatabase.TransactionManager
             if (availableLocations.Count() == 0)
             {
                 TransactionUtilities.BlockTransaction(action.Transaction, action);
-                output = output + "Transaction " + action.Transaction.Id +
+                output = output + "\nTransaction " + action.Transaction.Id +
                          " blocked due to unavailable sites to read from.";
             }
 
@@ -333,44 +312,20 @@ namespace DistributedDatabase.TransactionManager
                 else
                 {
                     //wait die
-                    List<Transaction> transactionsToAbort =
-                        WaitDie.FindTransToAbort(availableLocations.First().GetVariable(action.VariableId),
-                                                 action.Transaction);
+                    var shouldAbort =
+                         WaitDie.ShouldAbort(availableLocations.First().GetVariable(action.VariableId),
+                                                  action.Transaction);
 
-                    if (transactionsToAbort.Count == 0)
+                    if (shouldAbort)
                     {
-                        TransactionUtilities.BlockTransaction(action.Transaction, action);
-                        output = output + "Transaction " + action.Transaction.Id +
-                                 " blocked due to unavailable sites to read from.";
+                        TransactionUtilities.AbortTransaction(action.Transaction);
+                        output = output + "\nAborted Transaction " + action.Transaction.Id + " due to wait-die.";
                     }
                     else
                     {
-                        foreach (Transaction tempTrans in transactionsToAbort)
-                        {
-                            TransactionUtilities.AbortTransaction(tempTrans);
-                            output = output + "Aborted Transaction " + tempTrans.Id + "due to wait-die. ";
-                        }
-
-                        //try to get locks after wait die
-                        locks = LockAquirer.AquireReadLock(action, availableLocations);
-
-                        //ok we got a lock
-                        if (locks.Count != 0)
-                        {
-                            output = output + "Value Read:" +
-                                     locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
-                            action.Transaction.SiteUsedList.Add(new SiteAccessRecord
-                                                                    {
-                                                                        Site = locks.First(),
-                                                                        TimeStamp = _systemClock.CurrentTick
-                                                                    });
-                        }
-                        else //still unable to get a lock
-                        {
-                            TransactionUtilities.BlockTransaction(action.Transaction, action);
-                            output = output + "Transaction " + action.Transaction.Id +
-                                     " blocked due to unavailable sites to read from.";
-                        }
+                        TransactionUtilities.BlockTransaction(action.Transaction, action);
+                        output = output + "\nTransaction " + action.Transaction.Id +
+                                 " blocked due to unavailable sites to read from.";
                     }
                 }
             }

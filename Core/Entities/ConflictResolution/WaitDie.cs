@@ -10,34 +10,31 @@ namespace DistributedDatabase.Core.Entities.ConflictResolution
     public static class WaitDie
     {
         /// <summary>
-        /// Finds the trans to due to wait die. If the transaction has to wait on some transaction, it wont kill anything.
+        /// If the transaction should abort, if not, it waits.
         /// </summary>
         /// <param name="variableToAccess">The variable to access.</param>
         /// <param name="transactionSeekingLock">The transaction seeking lock.</param>
-        /// <returns></returns>
-        public static List<Transaction> FindTransToAbort(Variable variableToAccess, Transaction transactionSeekingLock)
+        public static bool ShouldAbort(Variable variableToAccess, Transaction transactionSeekingLock)
         {
-            var transactionsToAbort = new List<Transaction>();
-            var readTransactionsToAbort = new List<Transaction>();
-            bool mustWait = false;
+            bool shouldAbort = false;
 
-            if (variableToAccess.WriteLockHolder != null && variableToAccess.WriteLockHolder.StartTime > transactionSeekingLock.StartTime)
-                transactionsToAbort.Add(variableToAccess.WriteLockHolder);
-            else if (variableToAccess.WriteLockHolder.StartTime != null)
-                mustWait = true;
-
-            foreach (Transaction tempTrans in variableToAccess.ReadLockHolders)
+            //if we try to access a lock held by an older transaction
+            if (variableToAccess.WriteLockHolder != null && variableToAccess.WriteLockHolder.StartTime < transactionSeekingLock.StartTime)
+                return true; //we abort
+            else
             {
-                if (tempTrans.StartTime > transactionSeekingLock.StartTime)
-                    readTransactionsToAbort.Add(tempTrans);
-                else
-                    mustWait = true;
+                //if we are waiting on a younger transaction to finish
+                if (variableToAccess.WriteLockHolder != null && variableToAccess.WriteLockHolder.StartTime > transactionSeekingLock.StartTime)
+                    shouldAbort = false;
+
+                //check the read locks
+                foreach (Transaction tempTrans in variableToAccess.ReadLockHolders)
+                {
+                    if (tempTrans.StartTime < transactionSeekingLock.StartTime)
+                        shouldAbort = true;
+                }
             }
-
-            if (mustWait)
-                transactionsToAbort.Clear();
-
-            return transactionsToAbort;
+            return shouldAbort;
         }
     }
 }

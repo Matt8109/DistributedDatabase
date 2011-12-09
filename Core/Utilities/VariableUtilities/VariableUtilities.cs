@@ -26,7 +26,7 @@ namespace DistributedDatabase.Core.Utilities.VariableUtilities
         /// <returns></returns>
         public static int CalculateSite(int id)
         {
-            return (id % 10) + 1;
+            return (id + 1) % 10;
         }
 
         /// <summary>
