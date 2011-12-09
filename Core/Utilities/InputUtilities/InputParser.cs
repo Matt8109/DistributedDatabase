@@ -43,6 +43,22 @@ namespace DistributedDatabase.Core.Utilities.InputUtilities
                 entities.Add(tempExecutionEntiy);
             }
 
+            //initialized all used variables at each site
+            foreach (ExecutionEntity currentEntity in entities)
+            {
+                foreach (BaseAction tempAction in currentEntity.Actions)
+                {
+                    if (tempAction is Read)
+                    {
+                        siteList.GetRunningSitesWithVariable(((Read)tempAction).VariableId);
+                    }
+                    else if (tempAction is Write)
+                    {
+                        siteList.GetRunningSitesWithVariable(((Write)tempAction).VariableId);
+                    }
+                }
+            }
+
             return entities;
         }
 

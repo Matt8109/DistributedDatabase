@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DistributedDatabase.Core.Entities.Actions;
+using DistributedDatabase.Core.Entities.Execution;
+using DistributedDatabase.Core.Entities.Sites;
 
 namespace DistributedDatabase.Core.Utilities.VariableUtilities
 {

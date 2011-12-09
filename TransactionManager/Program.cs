@@ -55,7 +55,6 @@ namespace DistributedDatabase.TransactionManager
 
                     ProcessPausedTransactions();
 
-
                     _systemClock.Tick();
                 }
             }
@@ -228,7 +227,7 @@ namespace DistributedDatabase.TransactionManager
             if (availableLocations.Count() == 0)
             {
                 TransactionUtilities.BlockTransaction(action.Transaction, action);
-                output = output + "\nTransaction " + action.Transaction.Id +
+                output = output + "\n\tTransaction " + action.Transaction.Id +
                          " blocked due to unavailable sites to write to.";
             }
             else
@@ -260,12 +259,12 @@ namespace DistributedDatabase.TransactionManager
                     if (shouldAbort)
                     {
                         TransactionUtilities.AbortTransaction(action.Transaction);
-                        output = output + "\nAborted Transaction " + action.Transaction.Id + " due to wait-die.";
+                        output = output + "\n\tAborted Transaction " + action.Transaction.Id + " due to wait-die.";
                     }
                     else
                     {
                         TransactionUtilities.BlockTransaction(action.Transaction, action);
-                        output = output + "\nTransaction " + action.Transaction.Id +
+                        output = output + "\n\tTransaction " + action.Transaction.Id +
                                  " blocked due to unavailable sites to write to.";
                     }
                 }
@@ -286,6 +285,7 @@ namespace DistributedDatabase.TransactionManager
                 TransactionUtilities.BlockTransaction(action.Transaction, action);
                 output = output + "\nTransaction " + action.Transaction.Id +
                          " blocked due to unavailable sites to read from.";
+                return;
             }
 
             if (action.Transaction.IsReadOnly)

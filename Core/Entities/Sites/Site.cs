@@ -149,7 +149,7 @@ namespace DistributedDatabase.Core.Entities.Sites
             foreach (Variable currentVariable in replicatedVariables)
             {
                 var locations =
-                    SiteList.FindVariable(currentVariable.Id.ToString()).Where(x => x.IsFailed == false).ToList();
+                    SiteList.FindVariable(currentVariable.Id.ToString()).Where(x => x.IsFailed == false && x.GetVariable(currentVariable.Id).IsReadable == true).ToList();
 
                 if (locations.Count() == 0)
                     throw new Exception("All sites are down, unable to continue.");
@@ -197,6 +197,11 @@ namespace DistributedDatabase.Core.Entities.Sites
 
             foreach (Variable tempVar in VariableList)
                 tempVar.ResetToComitted().ForEach(transactionsEffected.SilentAdd);
+
+            var setUnreadable = VariableList.Where(x => VariableUtilities.IsReplicated(x.Id));
+
+            foreach (Variable variable in setUnreadable)
+                variable.IsReadable = false;
 
             return transactionsEffected;
         }
