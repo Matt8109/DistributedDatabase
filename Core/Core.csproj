@@ -53,6 +53,7 @@
     <Compile Include="Entities\Sites\FailureRecoverPair.cs" />
     <Compile Include="Entities\StateHolder\State.cs" />
     <Compile Include="Entities\SystemClock.cs" />
+    <Compile Include="Entities\Transactions\SiteAccessRecord.cs" />
     <Compile Include="Entities\Transactions\Transaction.cs" />
     <Compile Include="Entities\Transactions\TransactionList.cs" />
     <Compile Include="Entities\Variables\ValueSitePair.cs" />

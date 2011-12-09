@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using DistributedDatabase.Core;
 using DistributedDatabase.Core.Entities;
 using DistributedDatabase.Core.Entities.Actions;
@@ -76,16 +76,15 @@ namespace DistributedDatabase.TransactionManager
 
         private static void ProcessPausedTransactions()
         {
-            var blockedTransactions =
+            List<Transaction> blockedTransactions =
                 _transactionList.Transactions.Where(x => x.Status == TransactionStatus.Blocked).ToList();
 
             foreach (Transaction blocked in blockedTransactions)
             {
                 blocked.Status = TransactionStatus.Running;
-                var action = blocked.QueuedCommands.Dequeue();
+                BaseAction action = blocked.QueuedCommands.Dequeue();
                 ProcessEntity(action);
             }
-
         }
 
         private static void ProcessEntity(BaseAction tempAction)
@@ -93,8 +92,8 @@ namespace DistributedDatabase.TransactionManager
             //begin a transaction of any type
             if (tempAction is BeginTransaction)
             {
-                ((BeginTransaction)tempAction).Transaction.Status = TransactionStatus.Running;
-                ((BeginTransaction)tempAction).Transaction.StartTime = _systemClock.CurrentTick;
+                ((BeginTransaction) tempAction).Transaction.Status = TransactionStatus.Running;
+                ((BeginTransaction) tempAction).Transaction.StartTime = _systemClock.CurrentTick;
                 State.Add(tempAction.ActionName);
             }
 
@@ -110,12 +109,12 @@ namespace DistributedDatabase.TransactionManager
 
             if (tempAction is Dump)
             {
-                var action = (Dump)tempAction;
+                var action = (Dump) tempAction;
                 if (action.DumpFull)
                 {
                     foreach (Site tempSite in _siteList.Sites)
                     {
-                        var outputString = "Site: " + tempSite.Id + " - ";
+                        string outputString = "Site: " + tempSite.Id + " - ";
                         foreach (Variable tempvar in tempSite.VariableList)
                         {
                             outputString = outputString + tempvar.Id + ":" + tempvar.GetValue() + " ";
@@ -126,12 +125,14 @@ namespace DistributedDatabase.TransactionManager
                 else if (action.DumpObject.Substring(0, 1).ToLower().Equals("x"))
                 {
                     //print out variable at each site
-                    var locations = _siteList.FindVariable(VariableUtilities.VariableIdToInt(action.DumpObject).ToString());
-                    var outputString = "Variable " + VariableUtilities.VariableIdToInt(action.DumpObject).ToString() + " - ";
+                    List<Site> locations =
+                        _siteList.FindVariable(VariableUtilities.VariableIdToInt(action.DumpObject).ToString());
+                    string outputString = "Variable " + VariableUtilities.VariableIdToInt(action.DumpObject).ToString() +
+                                          " - ";
 
                     foreach (Site tempsite in locations)
                     {
-                        var variable = tempsite.GetVariable(VariableUtilities.VariableIdToInt(action.DumpObject));
+                        Variable variable = tempsite.GetVariable(VariableUtilities.VariableIdToInt(action.DumpObject));
                         outputString = outputString + " " + tempsite.Id + ":" + variable.GetValue();
                     }
                     State.Add("Dump - " + outputString);
@@ -139,8 +140,8 @@ namespace DistributedDatabase.TransactionManager
                 else
                 {
                     //print out all values at a given site
-                    var site = _siteList.GetSite(int.Parse(action.DumpObject));
-                    var outputString = "Site - ";
+                    Site site = _siteList.GetSite(int.Parse(action.DumpObject));
+                    string outputString = "Site - ";
 
                     foreach (Variable currentVar in site.VariableList)
                     {
@@ -152,22 +153,22 @@ namespace DistributedDatabase.TransactionManager
 
             if (tempAction is Fail)
             {
-                var action = (Fail)tempAction;
+                var action = (Fail) tempAction;
                 action.Site.Fail();
                 State.Add(tempAction.ActionName);
             }
 
             if (tempAction is Recover)
             {
-                var action = (Recover)tempAction;
+                var action = (Recover) tempAction;
                 action.Site.Recover();
                 State.Add(tempAction.ActionName);
             }
 
             if (tempAction is EndTransaction)
             {
-                var action = (EndTransaction)tempAction;
-                var wentDown = false;
+                var action = (EndTransaction) tempAction;
+                bool wentDown = false;
 
                 foreach (Site tempSite in action.Transaction.LocksHeld)
                 {
@@ -178,15 +179,14 @@ namespace DistributedDatabase.TransactionManager
                 if (wentDown)
                 {
                     TransactionUtilities.AbortTransaction(action.Transaction);
-                    State.Add("Aborted due to site failure: " + action.Transaction.Id);
+                    State.Add(action.Transaction.Id + " aborted due to site failure: " + action.Transaction.Id);
                 }
                 else
                 {
                     TransactionUtilities.CommitTransaction(action.Transaction);
-                    State.Add("Comitted: " + action.Transaction.Id);
+                    State.Add(action.Transaction.Id + " comitted: " + action.Transaction.Id);
                 }
             }
-
         }
 
         /// <summary>
@@ -198,48 +198,53 @@ namespace DistributedDatabase.TransactionManager
             string output = "Rereplicating: ";
             foreach (ValueSitePair pair in transaction.AwaitingReReplication)
             {
-                var available = _siteList.GetRunningSitesWithVariable(pair.Variable.Id.ToString());
-                var goodVariable = available.First().GetVariable(pair.Variable.Id.ToString());
+                List<Site> available = _siteList.GetRunningSitesWithVariable(pair.Variable.Id.ToString());
+                Variable goodVariable = available.First().GetVariable(pair.Variable.Id.ToString());
                 pair.Variable.VariableHistory = goodVariable.VariableHistory;
                 pair.Variable.IsReadable = true;
-                output = output + pair.ToString();
+                output = output + pair;
             }
             State.Add(output);
         }
 
         private static void WriteValue(BaseAction tempAction)
         {
-            var action = (Write)tempAction;
-            var availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
+            var action = (Write) tempAction;
+            List<Site> availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
 
-            var output = action.ToString() + " ";
+            string output = action + " ";
 
             //if there are no sites to read from
             if (availableLocations.Count() == 0)
             {
                 TransactionUtilities.BlockTransaction(action.Transaction, action);
-                output = output + "Transaction " + action.Transaction.Id + " blocked due to unavailable sites to write to.";
+                output = output + "Transaction " + action.Transaction.Id +
+                         " blocked due to unavailable sites to write to.";
             }
             else
             {
                 //we need to get locks
-                var locks = LockAquirer.AquireWriteLocks(action, availableLocations);
+                List<Site> locks = LockAquirer.AquireWriteLocks(action, availableLocations);
 
                 if (locks.Count != 0)
                 {
                     foreach (Site temp in locks)
                     {
-                        var variable = temp.GetVariable(action.VariableId);
+                        Variable variable = temp.GetVariable(action.VariableId);
                         variable.Set(action.Value);
+
+                        //add a record saying we used the transaction
+                        action.Transaction.SiteUsedList.Add(new SiteAccessRecord
+                                                                {Site = temp, TimeStamp = _systemClock.CurrentTick});
                     }
 
                     output = output + "Value Written:" +
-                                     locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
+                             locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
                 }
                 else
                 {
                     //wait die
-                    var transactionsToAbort =
+                    List<Transaction> transactionsToAbort =
                         WaitDie.FindTransToAbort(availableLocations.First().GetVariable(action.VariableId),
                                                  action.Transaction);
 
@@ -261,8 +266,15 @@ namespace DistributedDatabase.TransactionManager
 
                             foreach (Site temp in locks)
                             {
-                                var variable = temp.GetVariable(action.VariableId);
+                                Variable variable = temp.GetVariable(action.VariableId);
                                 variable.Set(action.Value);
+
+                                //add a record saying we used the transaction
+                                action.Transaction.SiteUsedList.Add(new SiteAccessRecord
+                                                                        {
+                                                                            Site = temp,
+                                                                            TimeStamp = _systemClock.CurrentTick
+                                                                        });
                             }
                             output = output + "Value written:" +
                                      locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
@@ -274,38 +286,46 @@ namespace DistributedDatabase.TransactionManager
 
         private static void ReadValue(BaseAction tempAction)
         {
-            var action = (Read)tempAction;
-            var availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
+            var action = (Read) tempAction;
+            List<Site> availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
 
-            var output = action.ActionName + " ";
+            string output = action.ActionName + " ";
 
             //if there are no sites to read from
             if (availableLocations.Count() == 0)
             {
                 TransactionUtilities.BlockTransaction(action.Transaction, action);
-                output = output + "Transaction " + action.Transaction.Id + " blocked due to unavailable sites to read from.";
+                output = output + "Transaction " + action.Transaction.Id +
+                         " blocked due to unavailable sites to read from.";
             }
 
             if (action.Transaction.IsReadOnly)
             {
                 //read only, no locks needed
-                var siteToReadFrom = availableLocations.First();
+                Site siteToReadFrom = availableLocations.First();
 
-                output = output + "Value Read:" + siteToReadFrom.GetVariable(action.VariableId).GetValue(action.Transaction);
+                //add a record saying we used the transaction
+                action.Transaction.SiteUsedList.Add(new SiteAccessRecord
+                                                        {Site = siteToReadFrom, TimeStamp = _systemClock.CurrentTick});
+                output = output + "Value Read:" +
+                         siteToReadFrom.GetVariable(action.VariableId).GetValue(action.Transaction);
             }
             else
             {
                 //we need to get locks
-                var locks = LockAquirer.AquireReadLock(action, availableLocations);
+                List<Site> locks = LockAquirer.AquireReadLock(action, availableLocations);
 
                 if (locks.Count != 0)
                 {
-                    output = output + "Value Read:" + locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
+                    output = output + "Value Read:" +
+                             locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
+                    action.Transaction.SiteUsedList.Add(new SiteAccessRecord
+                                                            {Site = locks.First(), TimeStamp = _systemClock.CurrentTick});
                 }
                 else
                 {
                     //wait die
-                    var transactionsToAbort =
+                    List<Transaction> transactionsToAbort =
                         WaitDie.FindTransToAbort(availableLocations.First().GetVariable(action.VariableId),
                                                  action.Transaction);
 
@@ -313,19 +333,35 @@ namespace DistributedDatabase.TransactionManager
                     {
                         TransactionUtilities.BlockTransaction(action.Transaction, action);
                         output = output + "Transaction " + action.Transaction.Id +
-                                        " blocked due to unavailable sites to read from.";
+                                 " blocked due to unavailable sites to read from.";
                     }
                     else
                     {
                         foreach (Transaction tempTrans in transactionsToAbort)
                         {
                             TransactionUtilities.AbortTransaction(tempTrans);
-                            output = output + "Aborted Transaction " + tempTrans.Id + "due to wait-die.";
+                            output = output + "Aborted Transaction " + tempTrans.Id + "due to wait-die. ";
+                        }
 
-                            //we need to get locks
-                            locks = LockAquirer.AquireReadLock(action, availableLocations);
+                        //try to get locks after wait die
+                        locks = LockAquirer.AquireReadLock(action, availableLocations);
+
+                        //ok we got a lock
+                        if (locks.Count != 0)
+                        {
                             output = output + "Value Read:" +
-                                               locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
+                                     locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
+                            action.Transaction.SiteUsedList.Add(new SiteAccessRecord
+                                                                    {
+                                                                        Site = locks.First(),
+                                                                        TimeStamp = _systemClock.CurrentTick
+                                                                    });
+                        }
+                        else
+                        {
+                            TransactionUtilities.BlockTransaction(action.Transaction, action);
+                            output = output + "Transaction " + action.Transaction.Id +
+                                     " blocked due to unavailable sites to read from.";
                         }
                     }
                 }

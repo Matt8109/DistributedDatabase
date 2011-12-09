@@ -36,6 +36,7 @@ namespace DistributedDatabase.Core.Entities.Transactions
             LocksHeld = new List<Site>();
             QueuedCommands = new Queue<BaseAction>();
             AwaitingReReplication = new List<ValueSitePair>();
+            SiteUsedList= new List<SiteAccessRecord>();
             SystemClock = systemClock;
         }
 
@@ -70,6 +71,14 @@ namespace DistributedDatabase.Core.Entities.Transactions
         /// The end time.
         /// </value>
         public int EndTime { get; set; }
+
+        /// <summary>
+        /// Holds any site used by the transaction.
+        /// </summary>
+        /// <value>
+        /// The site used list.
+        /// </value>
+        public List<SiteAccessRecord> SiteUsedList { get; set; } 
 
         /// <summary>
         /// A list that contains the locks currently held by the transaction

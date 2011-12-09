@@ -77,7 +77,7 @@ namespace DistributedDatabase.Core.Entities.Sites
             int currentTime = SystemClock.CurrentTick;
 
             IEnumerable<FailureRecoverPair> wentDown =
-                FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= currentTime);
+                FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= startTime);
 
 
             return wentDown.Count() != 0;
@@ -103,6 +103,10 @@ namespace DistributedDatabase.Core.Entities.Sites
             RecoverNonReplicatedVariables();
             RecoverReplicatedVariables();
             IsFailed = false;
+
+            //set the recover time
+            var lastFail = FailTimes.OrderByDescending(x => x.StartTime).First();
+            lastFail.EndTime = SystemClock.CurrentTick;
 
             Debug.WriteLine("Site " + Id + " recovered.");
         }
@@ -171,6 +175,9 @@ namespace DistributedDatabase.Core.Entities.Sites
         {
             IsFailed = true;
             var transactionsEffected = new List<Transaction>();
+
+            //set the fail time
+            FailTimes.Add(new FailureRecoverPair() { StartTime = SystemClock.CurrentTick, EndTime=int.MaxValue });
 
             foreach (Variable tempVar in VariableList)
                 tempVar.ResetToComitted().ForEach(transactionsEffected.SilentAdd);

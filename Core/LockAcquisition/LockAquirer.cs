@@ -27,6 +27,7 @@ namespace DistributedDatabase.Core
                 if (result.Contains(action.Transaction))
                 {
                     lockedSites.Add(tempSite);
+                    break;
                 }
             }
 
