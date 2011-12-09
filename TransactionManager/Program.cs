@@ -69,6 +69,8 @@ namespace DistributedDatabase.TransactionManager
 
             foreach (String outpt in State.output)
                 Console.WriteLine(outpt);
+
+            FileOutput.WriteFile(_fileName, State.output);
             Console.ReadLine();
         }
 

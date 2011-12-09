@@ -60,6 +60,7 @@
     <Compile Include="Entities\Variables\VariableValue.cs" />
     <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\InputUtilities\FileOutput.cs" />
     <Compile Include="Utilities\InputUtilities\FileReader.cs" />
     <Compile Include="Utilities\InputUtilities\InputParser.cs" />
     <Compile Include="Entities\Actions\Write.cs" />
