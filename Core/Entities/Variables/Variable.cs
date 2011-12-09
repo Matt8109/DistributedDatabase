@@ -67,7 +67,10 @@ namespace DistributedDatabase.Core.Entities.Variables
 
         public Transaction WriteLockHolder { get; private set; }
 
-        public bool IsReplicated { get { return VariableUtilities.IsReplicated(Id); } }
+        public bool IsReplicated
+        {
+            get { return VariableUtilities.IsReplicated(Id); }
+        }
 
         /// <summary>
         /// Gets or sets the uncommitted value.
@@ -93,7 +96,7 @@ namespace DistributedDatabase.Core.Entities.Variables
             if (UncomittedValue.Equals(string.Empty))
                 throw new Exception("Trying to commit empty value.");
 
-            VariableHistory.Add(new VariableValue { TimeStamp = SystemClock.CurrentTick, Value = UncomittedValue });
+            VariableHistory.Add(new VariableValue {TimeStamp = SystemClock.CurrentTick, Value = UncomittedValue});
             UncomittedValue = string.Empty;
             IsReadable = true;
         }
@@ -107,7 +110,7 @@ namespace DistributedDatabase.Core.Entities.Variables
         {
             if (WriteLockHolder != null && tempTransaction == WriteLockHolder && UncomittedValue != String.Empty)
                 return UncomittedValue;
-            
+
             if (VariableHistory.Count != 0)
             {
                 if (tempTransaction != null && tempTransaction.IsReadOnly)
@@ -134,11 +137,11 @@ namespace DistributedDatabase.Core.Entities.Variables
             //check to see if the there is currently a write lock
             if (IsWriteLocked && !WriteLockHolder.Equals(tempTransaction))
                 //they don't hold the write lock
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             else if (IsWriteLocked && WriteLockHolder.Equals(tempTransaction))
             {
                 //they do hold the write lock
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             }
 
             //there is no write lock, so add the transaction to the list of read lock holders
@@ -147,7 +150,7 @@ namespace DistributedDatabase.Core.Entities.Variables
                 ReadLockHolders.Add(tempTransaction);
                 tempTransaction.AddLockHeldLocation(Site);
             }
-                
+
 
             return ReadLockHolders;
         }
@@ -171,7 +174,7 @@ namespace DistributedDatabase.Core.Entities.Variables
                 {
                     WriteLockHolder = tempTransaction;
                     tempTransaction.AddLockHeldLocation(Site);
-                    return new List<Transaction> { WriteLockHolder };
+                    return new List<Transaction> {WriteLockHolder};
                 }
                 else //it doesnt, sad panda
                 {
@@ -181,13 +184,13 @@ namespace DistributedDatabase.Core.Entities.Variables
 
             if (IsWriteLocked)
             {
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             }
             else
             {
                 WriteLockHolder = tempTransaction;
                 tempTransaction.AddLockHeldLocation(Site);
-                return new List<Transaction> { WriteLockHolder };
+                return new List<Transaction> {WriteLockHolder};
             }
         }
 
@@ -234,6 +237,21 @@ namespace DistributedDatabase.Core.Entities.Variables
             IsReadable = !IsReplicated;
 
             return transactionsWithLocks;
+        }
+
+        public  bool Equals(Variable obj)
+        {
+            return obj.Id == this.Id;
+        }
+
+        public override bool Equals(Object obj)
+        {
+            if (obj is Variable)
+            {
+                if  (((Variable)obj).Id == this.Id)
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DistributedDatabase.Core.Entities.Sites;
 using System.Linq;
 using DistributedDatabase.Core.Entities.Variables;
+using DistributedDatabase.Core.Extensions;
 using DistributedDatabase.Core.Utilities.VariableUtilities;
 
 namespace DistributedDatabase.Core.Entities.Sites
@@ -74,7 +75,7 @@ namespace DistributedDatabase.Core.Entities.Sites
         {
             foreach (Site temp in siteToCreateVariable)
             {
-                temp.VariableList.Add(new Variable(VariableUtilities.VariableIdToInt(id), temp, Clock));
+                temp.VariableList.SilentAdd(new Variable(VariableUtilities.VariableIdToInt(id), temp, Clock));
             }
         }
 

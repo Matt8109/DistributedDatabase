@@ -65,20 +65,36 @@ namespace DistributedDatabase.Core.Entities.Sites
             return true;
         }
 
+        ///// <summary>
+        ///// If the site when down between when the transaction started and the current time.
+        ///// Used to decide if the transaction should commit or abort.
+        ///// </summary>
+        ///// <param name="transaction">The transaction.</param>
+        ///// <returns></returns>
+        //[Obsolete]
+        //public bool DidGoDown(Transaction transaction)
+        //{
+        //    int startTime = transaction.StartTime;
+        //    int currentTime = SystemClock.CurrentTick;
+
+        //    IEnumerable<FailureRecoverPair> wentDown =
+        //        FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= startTime);
+
+
+        //    return wentDown.Count() != 0;
+        //}
+
         /// <summary>
         /// If the site when down between when the transaction started and the current time.
         /// Used to decide if the transaction should commit or abort.
         /// </summary>
-        /// <param name="transaction">The transaction.</param>
+        /// <param name="record">The record.</param>
         /// <returns></returns>
-        public bool DidGoDown(Transaction transaction)
+        public bool DidGoDown(SiteAccessRecord record)
         {
-            int startTime = transaction.StartTime;
-            int currentTime = SystemClock.CurrentTick;
+            int startTime = record.TimeStamp;
 
-            IEnumerable<FailureRecoverPair> wentDown =
-                FailTimes.Where(x => x.StartTime >= startTime || x.EndTime >= startTime);
-
+            var wentDown = FailTimes.Where(x => x.StartTime >= startTime);
 
             return wentDown.Count() != 0;
         }
@@ -177,7 +193,7 @@ namespace DistributedDatabase.Core.Entities.Sites
             var transactionsEffected = new List<Transaction>();
 
             //set the fail time
-            FailTimes.Add(new FailureRecoverPair() { StartTime = SystemClock.CurrentTick, EndTime=int.MaxValue });
+            FailTimes.Add(new FailureRecoverPair() { StartTime = SystemClock.CurrentTick, EndTime = int.MaxValue });
 
             foreach (Variable tempVar in VariableList)
                 tempVar.ResetToComitted().ForEach(transactionsEffected.SilentAdd);

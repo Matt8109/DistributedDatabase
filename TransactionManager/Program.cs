@@ -92,8 +92,8 @@ namespace DistributedDatabase.TransactionManager
             //begin a transaction of any type
             if (tempAction is BeginTransaction)
             {
-                ((BeginTransaction) tempAction).Transaction.Status = TransactionStatus.Running;
-                ((BeginTransaction) tempAction).Transaction.StartTime = _systemClock.CurrentTick;
+                ((BeginTransaction)tempAction).Transaction.Status = TransactionStatus.Running;
+                ((BeginTransaction)tempAction).Transaction.StartTime = _systemClock.CurrentTick;
                 State.Add(tempAction.ActionName);
             }
 
@@ -109,7 +109,7 @@ namespace DistributedDatabase.TransactionManager
 
             if (tempAction is Dump)
             {
-                var action = (Dump) tempAction;
+                var action = (Dump)tempAction;
                 if (action.DumpFull)
                 {
                     foreach (Site tempSite in _siteList.Sites)
@@ -119,7 +119,7 @@ namespace DistributedDatabase.TransactionManager
                         {
                             outputString = outputString + tempvar.Id + ":" + tempvar.GetValue() + " ";
                         }
-                        State.Add("Dump - " + outputString);
+                        State.Add("Dump - " + outputString + " - " + (tempSite.IsFailed ? "(Down)" : "Up"));
                     }
                 }
                 else if (action.DumpObject.Substring(0, 1).ToLower().Equals("x"))
@@ -153,39 +153,45 @@ namespace DistributedDatabase.TransactionManager
 
             if (tempAction is Fail)
             {
-                var action = (Fail) tempAction;
-                action.Site.Fail();
+                var action = (Fail)tempAction;
                 State.Add(tempAction.ActionName);
+
+                action.Site.Fail();
             }
 
             if (tempAction is Recover)
             {
-                var action = (Recover) tempAction;
-                action.Site.Recover();
+                var action = (Recover)tempAction;
                 State.Add(tempAction.ActionName);
+
+                action.Site.Recover();
             }
 
             if (tempAction is EndTransaction)
             {
-                var action = (EndTransaction) tempAction;
+                var action = (EndTransaction)tempAction;
                 bool wentDown = false;
 
-                foreach (Site tempSite in action.Transaction.LocksHeld)
+                //check if the site went down after we accessed it
+                foreach (SiteAccessRecord record in action.Transaction.SiteUsedList)
                 {
-                    if (tempSite.DidGoDown(action.Transaction))
+                    if (record.Site.DidGoDown(record))
                         wentDown = true;
                 }
 
-                if (wentDown)
+                if (wentDown) //it did, abort the transaction
                 {
                     TransactionUtilities.AbortTransaction(action.Transaction);
                     State.Add(action.Transaction.Id + " aborted due to site failure: " + action.Transaction.Id);
                 }
-                else
+                else //it didnt, let it pass
                 {
                     TransactionUtilities.CommitTransaction(action.Transaction);
                     State.Add(action.Transaction.Id + " comitted: " + action.Transaction.Id);
                 }
+
+               //rereplicate any needed variables
+                ProcessReReplication(action.Transaction);
             }
         }
 
@@ -195,6 +201,10 @@ namespace DistributedDatabase.TransactionManager
         /// <param name="transaction">The transaction.</param>
         private static void ProcessReReplication(Transaction transaction)
         {
+            //only if there are things to actually rereplicate
+            if (transaction.AwaitingReReplication.Count == 0)
+                return;
+
             string output = "Rereplicating: ";
             foreach (ValueSitePair pair in transaction.AwaitingReReplication)
             {
@@ -209,10 +219,10 @@ namespace DistributedDatabase.TransactionManager
 
         private static void WriteValue(BaseAction tempAction)
         {
-            var action = (Write) tempAction;
+            var action = (Write)tempAction;
             List<Site> availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
 
-            string output = action + " ";
+            string output = action.ActionName + " ";
 
             //if there are no sites to read from
             if (availableLocations.Count() == 0)
@@ -234,8 +244,7 @@ namespace DistributedDatabase.TransactionManager
                         variable.Set(action.Value);
 
                         //add a record saying we used the transaction
-                        action.Transaction.SiteUsedList.Add(new SiteAccessRecord
-                                                                {Site = temp, TimeStamp = _systemClock.CurrentTick});
+                        action.Transaction.SiteUsedList.Add(new SiteAccessRecord { Site = temp, TimeStamp = _systemClock.CurrentTick });
                     }
 
                     output = output + "Value Written:" +
@@ -282,11 +291,12 @@ namespace DistributedDatabase.TransactionManager
                     }
                 }
             }
+            State.Add(output);
         }
 
         private static void ReadValue(BaseAction tempAction)
         {
-            var action = (Read) tempAction;
+            var action = (Read)tempAction;
             List<Site> availableLocations = _siteList.GetRunningSitesWithVariable(action.VariableId);
 
             string output = action.ActionName + " ";
@@ -305,8 +315,7 @@ namespace DistributedDatabase.TransactionManager
                 Site siteToReadFrom = availableLocations.First();
 
                 //add a record saying we used the transaction
-                action.Transaction.SiteUsedList.Add(new SiteAccessRecord
-                                                        {Site = siteToReadFrom, TimeStamp = _systemClock.CurrentTick});
+                action.Transaction.SiteUsedList.Add(new SiteAccessRecord { Site = siteToReadFrom, TimeStamp = _systemClock.CurrentTick });
                 output = output + "Value Read:" +
                          siteToReadFrom.GetVariable(action.VariableId).GetValue(action.Transaction);
             }
@@ -319,8 +328,7 @@ namespace DistributedDatabase.TransactionManager
                 {
                     output = output + "Value Read:" +
                              locks.First().GetVariable(action.VariableId).GetValue(action.Transaction);
-                    action.Transaction.SiteUsedList.Add(new SiteAccessRecord
-                                                            {Site = locks.First(), TimeStamp = _systemClock.CurrentTick});
+                    action.Transaction.SiteUsedList.Add(new SiteAccessRecord { Site = locks.First(), TimeStamp = _systemClock.CurrentTick });
                 }
                 else
                 {
@@ -357,7 +365,7 @@ namespace DistributedDatabase.TransactionManager
                                                                         TimeStamp = _systemClock.CurrentTick
                                                                     });
                         }
-                        else
+                        else //still unable to get a lock
                         {
                             TransactionUtilities.BlockTransaction(action.Transaction, action);
                             output = output + "Transaction " + action.Transaction.Id +
